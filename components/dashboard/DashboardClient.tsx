@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { staggerContainer, staggerItem } from '@/lib/motion';
 import { Counter } from '@/components/motion/Counter';
@@ -74,6 +74,7 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
   const [viewMode, setViewMode] = useState<'value' | 'percentage'>('value');
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
+  const [selectedPeriod, setSelectedPeriod] = useState<'12 Months' | '6 Months' | '30 Days' | '7 Days'>('12 Months');
   const [filters, setFilters] = useState<FilterOptions>({
     dateRange: {
       start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -264,63 +265,68 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
                 <h3 className="text-xl font-semibold text-foreground"><GradientText>Sales Report</GradientText></h3>
               <div className="flex items-center space-x-2">
                 <div className="flex space-x-1">
-                  {['12 Months', '6 Months', '30 Days', '7 Days'].map((period, index) => (
-                    <MotionButton
-                      key={period}
-                      className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                        index === 0 
-                          ? 'bg-primary text-white' 
-                          : 'text-foreground-muted hover:text-foreground hover:bg-secondary'
-                      }`}
-                    >
-                      {period}
-                    </MotionButton>
-                  ))}
+                    {(['12 Months','6 Months','30 Days','7 Days'] as const).map((period) => (
+                      <MotionButton
+                        key={period}
+                        onClick={() => setSelectedPeriod(period)}
+                        className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                          selectedPeriod === period
+                            ? 'bg-primary text-white'
+                            : 'text-foreground-muted hover:text-foreground hover:bg-secondary'
+                        }`}
+                      >
+                        {period}
+                      </MotionButton>
+                    ))}
                 </div>
-                  <MotionButton className="p-2 rounded-lg hover:bg-secondary transition-colors">
-                  <svg className="w-5 h-5 text-foreground-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  </MotionButton>
-                  <MotionButton className="p-2 rounded-lg hover:bg-secondary transition-colors">
-                  <svg className="w-5 h-5 text-foreground-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                  </svg>
-                  </MotionButton>
+                  {/* Removed download and more buttons per request */}
               </div>
             </div>
             
             <div className="mb-6">
-              <div className="flex items-center space-x-4">
-                <div>
-                  <p className="text-sm text-foreground-muted">Avg. per month</p>
-                  <p className="text-2xl font-bold text-foreground">$38,500</p>
-                </div>
-                <div className="flex items-center space-x-2 px-3 py-1 bg-green-500 rounded-full text-white text-sm">
-                  <ArrowUpRight className="w-4 h-4" />
-                  <span>+12.3%</span>
-                </div>
-              </div>
+              {(() => {
+                const datasets: Record<typeof selectedPeriod, number[]> = {
+                  '12 Months': [38,42,36,44,40,52,48,41,47,45,43,50],
+                  '6 Months': [32,36,34,39,41,38],
+                  '30 Days': [12,14,13,16,18,17,19,15,14,16,18,20,19,17,16,15,14,18,19,17,16,15,14,13,12,11,14,15,16,18],
+                  '7 Days'  : [6,7,8,9,8,7,10]
+                };
+                const current = datasets[selectedPeriod];
+                const avg = Math.round(current.reduce((a,b)=>a+b,0) / current.length * 1000);
+                return (
+                  <div className="flex items-center space-x-4">
+                    <div>
+                      <p className="text-sm text-foreground-muted">Avg. per {selectedPeriod.includes('Months') ? 'month' : 'period'}</p>
+                      <p className="text-2xl font-bold text-foreground">${avg.toLocaleString()}</p>
+                    </div>
+                    <div className="flex items-center space-x-2 px-3 py-1 bg-green-500 rounded-full text-white text-sm">
+                      <ArrowUpRight className="w-4 h-4" />
+                      <span>+12.3%</span>
+                    </div>
+                  </div>
+                );
+              })()}
               <p className="text-sm text-foreground-muted mt-2">Median $45,000</p>
             </div>
             
             {/* Bar Chart */}
             <div className="h-48 flex items-end space-x-2">
-              {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map((month, index) => (
-                <div key={month} className="flex-1 flex flex-col items-center">
-                  <div 
-                    className={`w-full rounded-t-lg ${
-                      month === 'Sep' ? 'bg-primary' : 'bg-secondary'
-                    } relative group`}
-                    style={{ height: `${Math.random() * 100 + 20}%` }}
+              {(selectedPeriod === '12 Months'
+                ? ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+                : Array.from({length: selectedPeriod==='6 Months'?6:selectedPeriod==='7 Days'?7:30}, (_,i)=>`${i+1}`)
+              ).map((label, index) => (
+                <div key={label} className="flex-1 flex flex-col items-center">
+                  <div
+                    className={`w-full rounded-t-lg ${label==='Sep' ? 'bg-primary' : 'bg-secondary'} relative group`}
+                    style={{ height: `${30 + (index % 10) * 6}%` }}
                   >
-                    {month === 'Sep' && (
+                    {label === 'Sep' && selectedPeriod === '12 Months' && (
                       <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-foreground text-background px-2 py-1 rounded text-xs whitespace-nowrap">
                         $47,500
                       </div>
                     )}
                   </div>
-                  <span className="text-xs text-foreground-muted mt-2">{month}</span>
+                  <span className="text-xs text-foreground-muted mt-2">{label}</span>
                 </div>
               ))}
             </div>
@@ -330,23 +336,7 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
           <div className="bg-card rounded-2xl p-8 border border-border shadow-lg">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-semibold text-foreground"><GradientText>Orders List</GradientText></h3>
-              <div className="flex items-center space-x-2">
-                <MotionButton className="p-2 rounded-lg hover:bg-secondary transition-colors">
-                  <svg className="w-5 h-5 text-foreground-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                  </svg>
-                </MotionButton>
-                <MotionButton className="p-2 rounded-lg hover:bg-secondary transition-colors">
-                  <svg className="w-5 h-5 text-foreground-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </MotionButton>
-                <MotionButton className="p-2 rounded-lg hover:bg-secondary transition-colors">
-                  <svg className="w-5 h-5 text-foreground-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                  </svg>
-                </MotionButton>
-              </div>
+              {/* Removed top-right buttons per request */}
             </div>
             
             <div className="space-y-4">
@@ -392,26 +382,7 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
           </div>
         </Reveal>
 
-        {/* CTA Section */}
-        <Reveal>
-          <div className="bg-gradient-primary rounded-2xl p-8 text-center">
-          <h3 className="text-2xl font-bold text-white mb-4">
-            <GradientText>Ready to dive deeper?</GradientText>
-          </h3>
-          <p className="text-white/80 mb-6 max-w-2xl mx-auto">
-            Explore advanced analytics, set up custom dashboards, and unlock insights 
-            that drive growth for your community.
-          </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <MotionButton className="bg-white text-primary px-6 py-3 rounded-xl font-semibold hover:bg-white/90 transition-colors btn-hover" onClick={() => toast({ title: 'Opening analytics' })}>
-              Explore Analytics
-              </MotionButton>
-              <MotionButton className="border-2 border-white text-white px-6 py-3 rounded-xl font-semibold hover:bg-white hover:text-primary transition-colors btn-hover" onClick={() => toast({ title: 'Creating dashboard' })}>
-              Create Dashboard
-              </MotionButton>
-          </div>
-        </div>
-        </Reveal>
+        {/* CTA Section removed per request */}
 
         {/* Modals */}
         <FilterModal

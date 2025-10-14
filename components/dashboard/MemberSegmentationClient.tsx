@@ -351,7 +351,7 @@ export function MemberSegmentationClient({
                 </MotionButton>
                 <MotionButton 
                   onClick={() => handleCalendlyLink(segment.name)}
-                  className="flex-1 bg-secondary hover:bg-secondary-800 text-secondary-foreground px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center space-x-2"
+                  className="flex-1 bg-secondary hover:bg-secondary-800 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center space-x-2"
                 >
                   <CalendarIcon className="w-4 h-4" />
                   <span>Create Campaign</span>
