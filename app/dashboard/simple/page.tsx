@@ -9,7 +9,8 @@ export default async function SimpleDashboardPage() {
     const headersList = await headers();
     const authResult = await whopSdk.verifyUserToken(headersList);
     userId = authResult.userId;
-    user = await whopSdk.users.getUser({ userId });
+    const whopUser = await whopSdk.users.getUser({ userId });
+    user = { name: whopUser.name || 'User' };
   } catch (error) {
     console.warn('Whop SDK error, using demo data:', error);
     // Continue with demo data if Whop SDK fails
