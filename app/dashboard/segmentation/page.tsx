@@ -1,89 +1,65 @@
 import { whopSdk } from "@/lib/whop-sdk";
 import { headers } from "next/headers";
 import { MemberSegmentationClient } from "@/components/dashboard/MemberSegmentationClient";
+import { getSegmentationAnalytics } from "@/lib/analytics-data";
+
+export const dynamic = 'force-dynamic';
 
 export default async function MemberSegmentationPage() {
   let user = { name: 'Demo User' };
   let userId = 'demo-user';
+  let companyId = 'default';
+  let companyName = 'Your Company';
   
   try {
     const headersList = await headers();
-    const authResult = await whopSdk.verifyUserToken(headersList);
+    const authResult = await (whopSdk as any).verifyUserToken(headersList);
     userId = authResult.userId;
-    const whopUser = await whopSdk.users.getUser({ userId });
+    const whopUser = await (whopSdk as any).users.getUser({ userId });
     user = { name: whopUser.name || 'User' };
+    
+    companyId = process.env.NEXT_PUBLIC_WHOP_COMPANY_ID || 'default';
   } catch (error) {
     console.warn('Whop SDK error, using demo data:', error);
   }
 
-  // Mock member segmentation data
-  const segments = [
-    {
-      id: '1',
-      name: 'Power Users',
-      description: 'High engagement, frequent purchases',
-      memberCount: 89,
-      avgLTV: 2450,
-      engagementScore: 9.2,
-      churnRate: 2.1,
-      growthRate: 15.3,
-      color: 'green',
-      characteristics: ['Daily active', 'Premium subscribers', 'Content creators']
-    },
-    {
-      id: '2',
-      name: 'Regular Members',
-      description: 'Consistent engagement, moderate spending',
-      memberCount: 456,
-      avgLTV: 890,
-      engagementScore: 7.1,
-      churnRate: 4.2,
-      growthRate: 8.7,
-      color: 'blue',
-      characteristics: ['Weekly active', 'Standard subscribers', 'Content consumers']
-    },
-    {
-      id: '3',
-      name: 'New Members',
-      description: 'Recently joined, exploring platform',
-      memberCount: 234,
-      avgLTV: 120,
-      engagementScore: 5.8,
-      churnRate: 12.5,
-      growthRate: 23.4,
-      color: 'yellow',
-      characteristics: ['First month', 'Trial users', 'Learning phase']
-    },
-    {
-      id: '4',
-      name: 'At-Risk Members',
-      description: 'Declining engagement, potential churn',
-      memberCount: 67,
-      avgLTV: 340,
-      engagementScore: 3.2,
-      churnRate: 28.7,
-      growthRate: -5.2,
-      color: 'red',
-      characteristics: ['Inactive 7+ days', 'Payment issues', 'Support tickets']
-    },
-    {
-      id: '5',
-      name: 'VIP Members',
-      description: 'Highest value, exclusive access',
-      memberCount: 23,
-      avgLTV: 5600,
-      engagementScore: 9.8,
-      churnRate: 0.8,
-      growthRate: 12.1,
-      color: 'purple',
-      characteristics: ['Annual subscribers', 'Early adopters', 'Community leaders']
-    }
-  ];
+  // Fetch real member segmentation data
+  let segments: any[] = [];
+
+  try {
+    const data = await getSegmentationAnalytics(companyId);
+    
+    // Map segments to expected format with additional UI properties
+    segments = data.segments.map((seg: any, index: number) => {
+      const colors = ['green', 'blue', 'yellow', 'purple'];
+      const descriptions: Record<string, string> = {
+        'Power Users': 'High engagement, frequent purchases',
+        'Rising Stars': 'New members with strong activity',
+        'At Risk': 'Inactive or declining engagement',
+        'Casual Users': 'Low frequency, moderate engagement'
+      };
+
+      return {
+        id: seg.id,
+        name: seg.name,
+        description: descriptions[seg.name] || 'Active community members',
+        memberCount: seg.memberCount,
+        avgLTV: seg.avgLTV,
+        engagementScore: seg.avgEngagement / 10, // Scale to 0-10
+        churnRate: 100 - seg.retentionRate, // Inverse of retention
+        growthRate: seg.growthRate,
+        color: colors[index % colors.length],
+        characteristics: [] // Would need more detailed data
+      };
+    });
+  } catch (error) {
+    console.error('Failed to fetch segmentation analytics:', error);
+  }
 
   return (
     <MemberSegmentationClient
-      companyId="default"
-      companyName="Your Company"
+      companyId={companyId}
+      companyName={companyName}
       userId={userId}
       userName={user.name || 'User'}
       segments={segments}

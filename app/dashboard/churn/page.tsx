@@ -1,97 +1,89 @@
 import { whopSdk } from "@/lib/whop-sdk";
 import { headers } from "next/headers";
 import { ChurnAnalysisClient } from "@/components/dashboard/ChurnAnalysisClient";
+import { getChurnAnalytics } from "@/lib/analytics-data";
+
+export const dynamic = 'force-dynamic';
 
 export default async function ChurnAnalysisPage() {
   let user = { name: 'Demo User' };
   let userId = 'demo-user';
+  let companyId = 'default';
+  let companyName = 'Your Company';
   
   try {
     const headersList = await headers();
-    const authResult = await whopSdk.verifyUserToken(headersList);
+    const authResult = await (whopSdk as any).verifyUserToken(headersList);
     userId = authResult.userId;
-    const whopUser = await whopSdk.users.getUser({ userId });
+    const whopUser = await (whopSdk as any).users.getUser({ userId });
     user = { name: whopUser.name || 'User' };
+    
+    companyId = process.env.NEXT_PUBLIC_WHOP_COMPANY_ID || 'default';
   } catch (error) {
     console.warn('Whop SDK error, using demo data:', error);
   }
 
-  // Mock churn analysis data - in real app, this would come from ML models
-  const churnData = {
-    totalMembers: 1247,
-    highRiskMembers: 23,
-    mediumRiskMembers: 67,
-    lowRiskMembers: 1157,
-    churnRate: 3.2,
-    predictedChurn: 45,
+  // Fetch real churn analysis data
+  let churnData = {
+    totalMembers: 0,
+    highRiskMembers: 0,
+    mediumRiskMembers: 0,
+    lowRiskMembers: 0,
+    churnRate: 0,
+    predictedChurn: 0,
     lastUpdated: new Date().toISOString()
   };
 
-  const highRiskMembers = [
-    { 
-      id: '1', 
-      name: 'John Smith', 
-      email: 'john@example.com', 
-      riskScore: 0.89, 
-      lastActive: '5 days ago', 
-      reason: 'No activity for 5+ days',
-      phone: '+1 (555) 123-4567',
-      joinDate: '2023-01-15',
-      profileUrl: 'https://whop.com/members/1'
-    },
-    { 
-      id: '2', 
-      name: 'Sarah Johnson', 
-      email: 'sarah@example.com', 
-      riskScore: 0.85, 
-      lastActive: '7 days ago', 
-      reason: 'Declining engagement',
-      phone: '+1 (555) 234-5678',
-      joinDate: '2023-02-20',
-      profileUrl: 'https://whop.com/members/2'
-    },
-    { 
-      id: '3', 
-      name: 'Mike Wilson', 
-      email: 'mike@example.com', 
-      riskScore: 0.82, 
-      lastActive: '4 days ago', 
-      reason: 'Support ticket unresolved',
-      phone: '+1 (555) 345-6789',
-      joinDate: '2023-03-10',
-      profileUrl: 'https://whop.com/members/3'
-    },
-    { 
-      id: '4', 
-      name: 'Emily Davis', 
-      email: 'emily@example.com', 
-      riskScore: 0.78, 
-      lastActive: '6 days ago', 
-      reason: 'Payment failed',
-      phone: '+1 (555) 456-7890',
-      joinDate: '2023-01-25',
-      profileUrl: 'https://whop.com/members/4'
-    },
-    { 
-      id: '5', 
-      name: 'David Brown', 
-      email: 'david@example.com', 
-      riskScore: 0.76, 
-      lastActive: '8 days ago', 
-      reason: 'Low content consumption',
-      phone: '+1 (555) 567-8901',
-      joinDate: '2023-04-05',
-      profileUrl: 'https://whop.com/members/5'
-    }
-  ];
+  let highRiskMembers: any[] = [];
+  let riskFactors: any[] = [];
 
-  const riskFactors = [
-    { factor: 'No activity for 5+ days', count: 12, impact: 'High' },
-    { factor: 'Declining engagement trend', count: 8, impact: 'High' },
-    { factor: 'Payment issues', count: 5, impact: 'Medium' },
-    { factor: 'Support tickets unresolved', count: 3, impact: 'Medium' },
-    { factor: 'Low content consumption', count: 7, impact: 'Low' }
-  ];
+  try {
+    const data = await getChurnAnalytics(companyId);
+    
+    churnData = {
+      totalMembers: data.totalMembers,
+      highRiskMembers: data.highRiskMembers,
+      mediumRiskMembers: data.mediumRiskMembers,
+      lowRiskMembers: data.lowRiskMembers,
+      churnRate: data.churnRate,
+      predictedChurn: data.predictedChurn,
+      lastUpdated: new Date().toISOString()
+    };
+
+    // Map high-risk members to expected format
+    highRiskMembers = data.highRiskMembersList.slice(0, 10).map((member: any) => ({
+      id: member.id || member.user?.id || 'unknown',
+      name: member.user?.name || member.user?.username || 'Unknown Member',
+      email: member.user?.email || 'N/A',
+      riskScore: member.riskScore,
+      lastActive: member.lastActive === 'Never' 
+        ? 'Never' 
+        : `${member.daysSinceActive} days ago`,
+      reason: member.daysSinceActive > 60 
+        ? 'No activity for 60+ days'
+        : member.daysSinceActive > 45
+        ? 'No activity for 45+ days'
+        : member.daysSinceActive > 30
+        ? 'No activity for 30+ days'
+        : 'Declining engagement',
+      phone: 'N/A', // Not available in SDK
+      joinDate: member.createdAt || 'Unknown',
+      profileUrl: member.user?.id ? `https://whop.com/members/${member.user.id}` : '#'
+    }));
+
+    // Calculate risk factors from member data
+    const inactive60Plus = data.membersWithRisk.filter((m: any) => m.daysSinceActive > 60).length;
+    const inactive30Plus = data.membersWithRisk.filter((m: any) => m.daysSinceActive > 30 && m.daysSinceActive <= 60).length;
+    const inactive14Plus = data.membersWithRisk.filter((m: any) => m.daysSinceActive > 14 && m.daysSinceActive <= 30).length;
+    
+    riskFactors = [
+      { factor: 'No activity for 60+ days', count: inactive60Plus, impact: 'High' },
+      { factor: 'No activity for 30+ days', count: inactive30Plus, impact: 'High' },
+      { factor: 'No activity for 14+ days', count: inactive14Plus, impact: 'Medium' },
+    ].filter(f => f.count > 0); // Only show non-zero factors
+  } catch (error) {
+    console.error('Failed to fetch churn analytics:', error);
+  }
 
   return (
     <ChurnAnalysisClient

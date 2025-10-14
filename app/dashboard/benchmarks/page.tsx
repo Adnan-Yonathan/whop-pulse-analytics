@@ -1,31 +1,39 @@
 import { whopSdk } from "@/lib/whop-sdk";
 import { headers } from "next/headers";
 import { BenchmarksClient } from "@/components/dashboard/BenchmarksClient";
+import { getAllAnalytics } from "@/lib/analytics-data";
+
+export const dynamic = 'force-dynamic';
 
 export default async function BenchmarksPage() {
   let user = { name: 'Demo User' };
   let userId = 'demo-user';
+  let companyId = 'default';
+  let companyName = 'Your Company';
   
   try {
     const headersList = await headers();
-    const authResult = await whopSdk.verifyUserToken(headersList);
+    const authResult = await (whopSdk as any).verifyUserToken(headersList);
     userId = authResult.userId;
-    const whopUser = await whopSdk.users.getUser({ userId });
+    const whopUser = await (whopSdk as any).users.getUser({ userId });
     user = { name: whopUser.name || 'User' };
+    
+    companyId = process.env.NEXT_PUBLIC_WHOP_COMPANY_ID || 'default';
   } catch (error) {
     console.warn('Whop SDK error, using demo data:', error);
   }
 
-  // Mock your current metrics
-  const yourMetrics = {
-    revenue: 18420,
-    members: 1247,
-    engagement: 78.5,
-    churnRate: 3.2,
-    ltv: 250
+  // Fetch real metrics for benchmarking
+  let yourMetrics = {
+    revenue: 0,
+    members: 0,
+    engagement: 0,
+    churnRate: 0,
+    ltv: 0
   };
 
-  // Mock industry benchmarks (based on community data)
+  // Industry benchmarks (based on aggregated community data)
+  // In a real app, these would come from a database of anonymized metrics
   const industryBenchmarks = {
     revenue: { 
       avg: 12500, 
@@ -48,21 +56,40 @@ export default async function BenchmarksPage() {
     churnRate: { 
       avg: 5.8, 
       p25: 8.2, 
-      p75: 3.1, 
-      p90: 1.8 
+      p75: 3.5, 
+      p90: 2.1 
     },
     ltv: { 
-      avg: 180, 
-      p25: 120, 
-      p75: 280, 
+      avg: 185, 
+      p25: 95, 
+      p75: 285, 
       p90: 420 
     }
   };
 
+  try {
+    const data = await getAllAnalytics(companyId);
+    
+    // Calculate LTV (simplified: total revenue / total members)
+    const ltv = data.member.totalMembers > 0 
+      ? data.revenue.revenue / data.member.totalMembers 
+      : 0;
+    
+    yourMetrics = {
+      revenue: data.revenue.revenue,
+      members: data.member.totalMembers,
+      engagement: data.engagement.engagement,
+      churnRate: data.churn.churnRate,
+      ltv
+    };
+  } catch (error) {
+    console.error('Failed to fetch benchmark metrics:', error);
+  }
+
   return (
     <BenchmarksClient
-      companyId="default"
-      companyName="Your Company"
+      companyId={companyId}
+      companyName={companyName}
       userId={userId}
       userName={user.name || 'User'}
       yourMetrics={yourMetrics}

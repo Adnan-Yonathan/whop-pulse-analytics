@@ -1,79 +1,63 @@
 import { whopSdk } from "@/lib/whop-sdk";
 import { headers } from "next/headers";
 import { EngagementHeatmapsClient } from "@/components/dashboard/EngagementHeatmapsClient";
+import { getEngagementHeatmapData } from "@/lib/analytics-data";
+
+export const dynamic = 'force-dynamic';
 
 export default async function EngagementHeatmapsPage() {
   let user = { name: 'Demo User' };
   let userId = 'demo-user';
+  let companyId = 'default';
+  let companyName = 'Your Company';
   
   try {
     const headersList = await headers();
-    const authResult = await whopSdk.verifyUserToken(headersList);
+    const authResult = await (whopSdk as any).verifyUserToken(headersList);
     userId = authResult.userId;
-    const whopUser = await whopSdk.users.getUser({ userId });
+    const whopUser = await (whopSdk as any).users.getUser({ userId });
     user = { name: whopUser.name || 'User' };
+    
+    companyId = process.env.NEXT_PUBLIC_WHOP_COMPANY_ID || 'default';
   } catch (error) {
     console.warn('Whop SDK error, using demo data:', error);
   }
 
-  // Mock engagement heatmap data
-  const timeData = [
-    { hour: '00:00', activity: 12, intensity: 'low' },
-    { hour: '01:00', activity: 8, intensity: 'low' },
-    { hour: '02:00', activity: 5, intensity: 'low' },
-    { hour: '03:00', activity: 3, intensity: 'low' },
-    { hour: '04:00', activity: 7, intensity: 'low' },
-    { hour: '05:00', activity: 15, intensity: 'low' },
-    { hour: '06:00', activity: 45, intensity: 'medium' },
-    { hour: '07:00', activity: 78, intensity: 'medium' },
-    { hour: '08:00', activity: 120, intensity: 'high' },
-    { hour: '09:00', activity: 156, intensity: 'high' },
-    { hour: '10:00', activity: 134, intensity: 'high' },
-    { hour: '11:00', activity: 98, intensity: 'medium' },
-    { hour: '12:00', activity: 87, intensity: 'medium' },
-    { hour: '13:00', activity: 76, intensity: 'medium' },
-    { hour: '14:00', activity: 145, intensity: 'high' },
-    { hour: '15:00', activity: 167, intensity: 'high' },
-    { hour: '16:00', activity: 189, intensity: 'high' },
-    { hour: '17:00', activity: 134, intensity: 'high' },
-    { hour: '18:00', activity: 98, intensity: 'medium' },
-    { hour: '19:00', activity: 76, intensity: 'medium' },
-    { hour: '20:00', activity: 89, intensity: 'medium' },
-    { hour: '21:00', activity: 67, intensity: 'medium' },
-    { hour: '22:00', activity: 45, intensity: 'medium' },
-    { hour: '23:00', activity: 23, intensity: 'low' }
-  ];
+  // Fetch real engagement heatmap data
+  let timeData: any[] = [];
+  let dayData: any[] = [];
+  let deviceData: any[] = [];
+  let locationData: any[] = [];
 
-  const dayData = [
-    { day: 'Monday', activity: 1456, intensity: 'high' },
-    { day: 'Tuesday', activity: 1678, intensity: 'high' },
-    { day: 'Wednesday', activity: 1890, intensity: 'high' },
-    { day: 'Thursday', activity: 1234, intensity: 'medium' },
-    { day: 'Friday', activity: 1567, intensity: 'high' },
-    { day: 'Saturday', activity: 890, intensity: 'low' },
-    { day: 'Sunday', activity: 567, intensity: 'low' }
-  ];
+  try {
+    const data = await getEngagementHeatmapData(companyId);
+    
+    // Map hourly data
+    timeData = data.byHour.map((activity: number, index: number) => ({
+      hour: `${String(index).padStart(2, '0')}:00`,
+      activity,
+      intensity: activity > 100 ? 'high' : activity > 50 ? 'medium' : 'low'
+    }));
 
-  const deviceData = [
-    { device: 'Desktop', users: 456, percentage: 45.2, avgSession: 24.5 },
-    { device: 'Mobile', users: 389, percentage: 38.5, avgSession: 12.3 },
-    { device: 'Tablet', users: 123, percentage: 12.2, avgSession: 18.7 },
-    { device: 'Other', users: 42, percentage: 4.1, avgSession: 8.9 }
-  ];
+    // Map daily data
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    dayData = data.byDay.map((activity: number, index: number) => ({
+      day: days[index],
+      activity,
+      intensity: activity > 1000 ? 'high' : activity > 500 ? 'medium' : 'low'
+    }));
 
-  const locationData = [
-    { country: 'United States', users: 456, percentage: 45.2 },
-    { country: 'United Kingdom', users: 123, percentage: 12.2 },
-    { country: 'Canada', users: 89, percentage: 8.8 },
-    { country: 'Australia', users: 67, percentage: 6.6 },
-    { country: 'Germany', users: 45, percentage: 4.5 },
-    { country: 'Other', users: 230, percentage: 22.7 }
-  ];
+    // Placeholder for device and location data (not available from SDK)
+    deviceData = [];
+    locationData = [];
+  } catch (error) {
+    console.error('Failed to fetch engagement heatmap data:', error);
+  }
 
   return (
     <EngagementHeatmapsClient
-      companyId="default"
-      companyName="Your Company"
+      companyId={companyId}
+      companyName={companyName}
       userId={userId}
       userName={user.name || 'User'}
       timeData={timeData}
