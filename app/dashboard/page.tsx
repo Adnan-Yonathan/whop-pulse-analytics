@@ -1,16 +1,6 @@
 import { whopSdk } from "@/lib/whop-sdk";
 import { headers } from "next/headers";
 import { DashboardClient } from "@/components/dashboard/DashboardClient";
-import {
-  TrendingUp,
-  Users,
-  DollarSign,
-  Activity,
-  ArrowUpRight,
-  ArrowDownRight,
-  Eye,
-  Settings
-} from 'lucide-react';
 
 export default async function DashboardPage() {
   let user = { name: 'Demo User' };
@@ -80,88 +70,12 @@ export default async function DashboardPage() {
       companyName="Your Company"
       userId={userId}
       userName={user.name || 'User'}
+      analyticsData={analyticsData}
     >
-      <div className="space-y-8">
-        {/* Navigation Tabs */}
-        <div className="flex items-center space-x-8 border-b border-border pb-4">
-          <button className="flex items-center space-x-2 px-4 py-2 border-b-2 border-primary text-primary font-medium">
-            <Eye className="w-4 h-4" />
-            <span>Value comparison</span>
-          </button>
-          <button className="flex items-center space-x-2 px-4 py-2 text-foreground-muted hover:text-foreground transition-colors">
-            <span>% Average values</span>
-          </button>
-          <button className="flex items-center space-x-2 px-4 py-2 text-foreground-muted hover:text-foreground transition-colors">
-            <Settings className="w-4 h-4" />
-            <span>Configure analysis</span>
-          </button>
-          <button className="flex items-center space-x-2 px-4 py-2 text-foreground-muted hover:text-foreground transition-colors">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-            </svg>
-            <span>Filter analysis</span>
-          </button>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon;
-            const cardColors = [
-              { bg: 'bg-blue-500/10', border: 'border-blue-500/20', icon: 'text-blue-400', accent: 'bg-blue-500' },
-              { bg: 'bg-red-500/10', border: 'border-red-500/20', icon: 'text-red-400', accent: 'bg-red-500' },
-              { bg: 'bg-green-500/10', border: 'border-green-500/20', icon: 'text-green-400', accent: 'bg-green-500' }
-            ];
-            const colors = cardColors[index % cardColors.length];
-            
-            return (
-              <div
-                key={index}
-                className={`${colors.bg} ${colors.border} rounded-2xl p-8 border shadow-lg hover:shadow-xl transition-all duration-300`}
-              >
-                <div className="flex items-center justify-between mb-6">
-                  <div className={`p-4 rounded-xl ${colors.bg}`}>
-                    <Icon className={`w-8 h-8 ${colors.icon}`} />
-                  </div>
-                  <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${colors.accent} text-white text-sm font-medium`}>
-                    {stat.changeType === 'positive' ? (
-                      <ArrowUpRight className="w-4 h-4" />
-                    ) : (
-                      <ArrowDownRight className="w-4 h-4" />
-                    )}
-                    <span>{stat.change}</span>
-                  </div>
-                </div>
-                <div>
-                  <p className="text-3xl font-bold text-foreground mb-2">
-                    {stat.value}
-                  </p>
-                  <p className="text-base text-foreground-muted mb-4">
-                    {stat.title}
-                  </p>
-                  <p className="text-sm text-foreground-muted">
-                    Since last week {stat.change}
-                  </p>
-                </div>
-                {/* Mini Chart */}
-                <div className="mt-4 h-12 flex items-end space-x-1">
-                  {[20, 35, 25, 45, 30, 55, 40, 60, 50, 70, 65, 80].map((height, i) => (
-                    <div
-                      key={i}
-                      className={`w-2 ${colors.accent} rounded-t`}
-                      style={{ height: `${height}%` }}
-                    />
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Sales Report Chart */}
-          <div className="bg-card rounded-2xl p-8 border border-border shadow-lg">
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Sales Report Chart */}
+        <div className="bg-card rounded-2xl p-8 border border-border shadow-lg">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-semibold text-foreground">Sales Report</h3>
               <div className="flex items-center space-x-2">

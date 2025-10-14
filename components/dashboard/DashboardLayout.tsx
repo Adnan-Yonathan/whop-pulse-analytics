@@ -4,13 +4,15 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { PulseLogo } from '@/components/ui/PulseLogo';
-import { 
-  BarChart3, 
-  Users, 
-  TrendingUp, 
-  Target, 
-  Activity, 
-  PieChart, 
+import { SearchBar } from './SearchBar';
+import { NotificationsPanel } from './NotificationsPanel';
+import {
+  BarChart3,
+  Users,
+  TrendingUp,
+  Target,
+  Activity,
+  PieChart,
   DollarSign,
   Settings,
   Menu,
@@ -141,26 +143,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             
             <div className="flex items-center space-x-4">
               {/* Search Bar */}
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Type keywords to search..."
-                  className="w-80 px-4 py-3 pl-10 bg-background border border-border rounded-xl text-foreground placeholder-foreground-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                />
-                <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
-                  <svg className="w-5 h-5 text-foreground-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
-              </div>
+              <SearchBar />
               
-              <button className="p-3 rounded-xl bg-secondary hover:bg-secondary-800 transition-colors relative">
-                <svg className="w-5 h-5 text-foreground-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM4.5 19.5a1.5 1.5 0 01-1.5-1.5V6a1.5 1.5 0 011.5-1.5h15A1.5 1.5 0 0121 6v12a1.5 1.5 0 01-1.5 1.5h-15z" />
-                </svg>
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-xs rounded-full flex items-center justify-center">26</span>
-              </button>
+              {/* Notifications */}
+              <NotificationsPanel />
               
+              {/* Settings */}
               <button className="p-3 rounded-xl bg-secondary hover:bg-secondary-800 transition-colors">
                 <Settings className="w-5 h-5 text-foreground-muted" />
               </button>
