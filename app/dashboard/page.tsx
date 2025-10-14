@@ -1,7 +1,7 @@
 import { whopSdk } from "@/lib/whop-sdk";
 import { headers } from "next/headers";
 import { DashboardClient } from "@/components/dashboard/DashboardClient";
-import { getAllAnalytics } from "@/lib/analytics-data";
+import { getAllAnalytics, getSalesData, getRecentOrders } from "@/lib/analytics-data";
 
 export const dynamic = 'force-dynamic';
 
@@ -37,8 +37,27 @@ export default async function DashboardPage() {
     churnRate: 0
   };
 
+  let salesData = {
+    '12 Months': Array(12).fill(0),
+    '6 Months': Array(6).fill(0),
+    '30 Days': Array(30).fill(0),
+    '7 Days': Array(7).fill(0),
+    labels: {
+      '12 Months': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      '6 Months': ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      '30 Days': Array.from({ length: 30 }, (_, i) => `${i + 1}`),
+      '7 Days': Array.from({ length: 7 }, (_, i) => `${i + 1}`)
+    }
+  };
+
+  let recentOrders: any[] = [];
+
   try {
-    const allData = await getAllAnalytics(companyId);
+    const [allData, sales, orders] = await Promise.all([
+      getAllAnalytics(companyId),
+      getSalesData(companyId),
+      getRecentOrders(companyId, 5)
+    ]);
     
     analyticsData = {
       totalMembers: allData.member.totalMembers,
@@ -50,6 +69,9 @@ export default async function DashboardPage() {
       engagementChange: allData.engagement.engagementChange,
       churnRate: allData.churn.churnRate
     };
+
+    salesData = sales;
+    recentOrders = orders;
   } catch (error) {
     console.error('Failed to fetch analytics:', error);
     // Continue with zeros if fetch fails
@@ -62,6 +84,8 @@ export default async function DashboardPage() {
       userId={userId}
       userName={user.name || 'User'}
       analyticsData={analyticsData}
+      salesData={salesData}
+      recentOrders={recentOrders}
     />
   );
 }

@@ -37,6 +37,28 @@ interface DashboardClientProps {
     engagementChange: number;
     churnRate: number;
   };
+  salesData?: {
+    '12 Months': number[];
+    '6 Months': number[];
+    '30 Days': number[];
+    '7 Days': number[];
+    labels: {
+      '12 Months': string[];
+      '6 Months': string[];
+      '30 Days': string[];
+      '7 Days': string[];
+    };
+  };
+  recentOrders?: Array<{
+    id: string;
+    name: string;
+    order: string;
+    cost: string;
+    date: string;
+    status: string;
+    statusColor: string;
+    rating: number;
+  }>;
 }
 
 interface FilterOptions {
@@ -68,7 +90,9 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
   companyName,
   userId,
   userName,
-  analyticsData
+  analyticsData,
+  salesData,
+  recentOrders
 }) => {
   const { toast } = useToast();
   const [viewMode, setViewMode] = useState<'value' | 'percentage'>('value');
@@ -285,50 +309,54 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
             
             <div className="mb-6">
               {(() => {
-                const datasets: Record<typeof selectedPeriod, number[]> = {
-                  '12 Months': [38,42,36,44,40,52,48,41,47,45,43,50],
-                  '6 Months': [32,36,34,39,41,38],
-                  '30 Days': [12,14,13,16,18,17,19,15,14,16,18,20,19,17,16,15,14,18,19,17,16,15,14,13,12,11,14,15,16,18],
-                  '7 Days'  : [6,7,8,9,8,7,10]
-                };
-                const current = datasets[selectedPeriod];
-                const avg = Math.round(current.reduce((a,b)=>a+b,0) / current.length * 1000);
+                const current = salesData?.[selectedPeriod] || Array(12).fill(0);
+                const total = current.reduce((a, b) => a + b, 0);
+                const avg = current.length > 0 ? Math.round(total / current.length) : 0;
+                const median = current.length > 0 ? Math.round([...current].sort((a, b) => a - b)[Math.floor(current.length / 2)]) : 0;
+                
                 return (
-                  <div className="flex items-center space-x-4">
-                    <div>
-                      <p className="text-sm text-foreground-muted">Avg. per {selectedPeriod.includes('Months') ? 'month' : 'period'}</p>
-                      <p className="text-2xl font-bold text-foreground">${avg.toLocaleString()}</p>
+                  <>
+                    <div className="flex items-center space-x-4">
+                      <div>
+                        <p className="text-sm text-foreground-muted">Avg. per {selectedPeriod.includes('Months') ? 'month' : 'period'}</p>
+                        <p className="text-2xl font-bold text-foreground">${avg.toLocaleString()}</p>
+                      </div>
+                      <div className="flex items-center space-x-2 px-3 py-1 bg-green-500 rounded-full text-white text-sm">
+                        <ArrowUpRight className="w-4 h-4" />
+                        <span>+{analyticsData.revenueGrowth.toFixed(1)}%</span>
+                      </div>
                     </div>
-                    <div className="flex items-center space-x-2 px-3 py-1 bg-green-500 rounded-full text-white text-sm">
-                      <ArrowUpRight className="w-4 h-4" />
-                      <span>+12.3%</span>
-                    </div>
-                  </div>
+                    <p className="text-sm text-foreground-muted mt-2">Median ${median.toLocaleString()}</p>
+                  </>
                 );
               })()}
-              <p className="text-sm text-foreground-muted mt-2">Median $45,000</p>
             </div>
             
             {/* Bar Chart */}
             <div className="h-48 flex items-end space-x-2">
-              {(selectedPeriod === '12 Months'
-                ? ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-                : Array.from({length: selectedPeriod==='6 Months'?6:selectedPeriod==='7 Days'?7:30}, (_,i)=>`${i+1}`)
-              ).map((label, index) => (
-                <div key={label} className="flex-1 flex flex-col items-center">
-                  <div
-                    className={`w-full rounded-t-lg ${label==='Sep' ? 'bg-primary' : 'bg-secondary'} relative group`}
-                    style={{ height: `${30 + (index % 10) * 6}%` }}
-                  >
-                    {label === 'Sep' && selectedPeriod === '12 Months' && (
-                      <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-foreground text-background px-2 py-1 rounded text-xs whitespace-nowrap">
-                        $47,500
-                      </div>
-                    )}
+              {(salesData?.labels[selectedPeriod] || []).map((label, index) => {
+                const data = salesData?.[selectedPeriod] || [];
+                const maxValue = Math.max(...data, 1);
+                const value = data[index] || 0;
+                const heightPercent = maxValue > 0 ? (value / maxValue) * 100 : 0;
+                const isHighest = value === maxValue && value > 0;
+                
+                return (
+                  <div key={`${label}-${index}`} className="flex-1 flex flex-col items-center">
+                    <div
+                      className={`w-full rounded-t-lg ${isHighest ? 'bg-primary' : 'bg-secondary'} relative group`}
+                      style={{ height: `${Math.max(heightPercent, 5)}%` }}
+                    >
+                      {isHighest && value > 0 && (
+                        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-foreground text-background px-2 py-1 rounded text-xs whitespace-nowrap">
+                          ${Math.round(value).toLocaleString()}
+                        </div>
+                      )}
+                    </div>
+                    <span className="text-xs text-foreground-muted mt-2">{label}</span>
                   </div>
-                  <span className="text-xs text-foreground-muted mt-2">{label}</span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -340,11 +368,9 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
             </div>
             
             <div className="space-y-4">
-              {[
-                { name: 'John C.', order: '#5845-12', cost: '$97.50', date: '7 feb,2023', rating: 5, status: 'Completed', statusColor: 'text-green-400' },
-                { name: 'Matthew K.', order: '#4734-01', cost: '$79.90', date: '6 feb,2023', rating: 5, status: 'Pending', statusColor: 'text-orange-400' },
-                { name: 'Dontai G.', order: '#6956-23', cost: '$80.40', date: '5 feb,2023', rating: 5, status: 'Canceled', statusColor: 'text-red-400' }
-              ].map((order, index) => (
+              {(recentOrders && recentOrders.length > 0 ? recentOrders : [
+                { id: '1', name: 'No orders yet', order: '#0000-00', cost: '$0.00', date: 'N/A', rating: 0, status: 'N/A', statusColor: 'text-gray-400' }
+              ]).map((order, index) => (
                 <div key={index} className="flex items-center justify-between p-4 bg-secondary rounded-xl">
                   <div className="flex items-center space-x-4">
                     <div className="w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center">

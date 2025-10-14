@@ -443,6 +443,137 @@ export async function getEngagementHeatmapData(companyId: string) {
 }
 
 /**
+ * Get sales data grouped by time period
+ */
+export async function getSalesData(companyId: string) {
+  try {
+    const revenueData = await getRevenueAnalytics(companyId);
+    const receipts = revenueData.receipts;
+
+    // Group receipts by month for the last 12 months
+    const now = new Date();
+    const monthlyData = Array(12).fill(0);
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    receipts.forEach((receipt: any) => {
+      const receiptDate = new Date(receipt?.createdAt);
+      const monthsAgo = (now.getFullYear() - receiptDate.getFullYear()) * 12 + 
+                        (now.getMonth() - receiptDate.getMonth());
+      
+      if (monthsAgo >= 0 && monthsAgo < 12) {
+        const amount = (receipt?.finalAmountCents || 0) / 100;
+        monthlyData[11 - monthsAgo] += amount;
+      }
+    });
+
+    // Calculate 6 months data
+    const sixMonthsData = monthlyData.slice(6);
+
+    // Calculate 30 days data
+    const dailyData = Array(30).fill(0);
+    receipts.forEach((receipt: any) => {
+      const receiptDate = new Date(receipt?.createdAt);
+      const daysAgo = Math.floor((now.getTime() - receiptDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (daysAgo >= 0 && daysAgo < 30) {
+        const amount = (receipt?.finalAmountCents || 0) / 100;
+        dailyData[29 - daysAgo] += amount;
+      }
+    });
+
+    // Calculate 7 days data
+    const weeklyData = Array(7).fill(0);
+    receipts.forEach((receipt: any) => {
+      const receiptDate = new Date(receipt?.createdAt);
+      const daysAgo = Math.floor((now.getTime() - receiptDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (daysAgo >= 0 && daysAgo < 7) {
+        const amount = (receipt?.finalAmountCents || 0) / 100;
+        weeklyData[6 - daysAgo] += amount;
+      }
+    });
+
+    return {
+      '12 Months': monthlyData,
+      '6 Months': sixMonthsData,
+      '30 Days': dailyData,
+      '7 Days': weeklyData,
+      labels: {
+        '12 Months': monthNames,
+        '6 Months': monthNames.slice(6),
+        '30 Days': Array.from({ length: 30 }, (_, i) => `${i + 1}`),
+        '7 Days': Array.from({ length: 7 }, (_, i) => `${i + 1}`)
+      }
+    };
+  } catch (error) {
+    console.error('Failed to fetch sales data:', error);
+    return {
+      '12 Months': Array(12).fill(0),
+      '6 Months': Array(6).fill(0),
+      '30 Days': Array(30).fill(0),
+      '7 Days': Array(7).fill(0),
+      labels: {
+        '12 Months': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        '6 Months': ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        '30 Days': Array.from({ length: 30 }, (_, i) => `${i + 1}`),
+        '7 Days': Array.from({ length: 7 }, (_, i) => `${i + 1}`)
+      }
+    };
+  }
+}
+
+/**
+ * Get recent orders/receipts
+ */
+export async function getRecentOrders(companyId: string, limit: number = 10) {
+  try {
+    const sdk = whopSdk as any;
+    
+    // Fetch recent receipts
+    const result = await sdk.receipts.listReceiptsForCompany({
+      companyId,
+      first: limit,
+    });
+
+    const receipts = result?.receipts?.edges || [];
+    
+    // Map to order format
+    const orders = await Promise.all(receipts.map(async (edge: any, index: number) => {
+      const receipt = edge.node;
+      const amount = (receipt?.finalAmountCents || 0) / 100;
+      const date = receipt?.createdAt ? new Date(receipt.createdAt) : new Date();
+      
+      // Try to get user info
+      let userName = 'Unknown User';
+      try {
+        if (receipt?.userId) {
+          const user = await sdk.users.getUser({ userId: receipt.userId });
+          userName = user?.name || user?.username || 'Unknown User';
+        }
+      } catch {
+        // Fallback if user fetch fails
+      }
+
+      return {
+        id: receipt?.id || `order-${index}`,
+        name: userName,
+        order: `#${receipt?.id?.slice(-8) || Math.random().toString(36).slice(2, 10)}`,
+        cost: `$${amount.toFixed(2)}`,
+        date: date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }),
+        status: receipt?.status === 'paid' ? 'Completed' : receipt?.status === 'pending' ? 'Pending' : 'Canceled',
+        statusColor: receipt?.status === 'paid' ? 'text-green-400' : receipt?.status === 'pending' ? 'text-orange-400' : 'text-red-400',
+        rating: 5, // Not available from SDK
+      };
+    }));
+
+    return orders;
+  } catch (error) {
+    console.error('Failed to fetch recent orders:', error);
+    return [];
+  }
+}
+
+/**
  * Aggregate all analytics for a company
  */
 export async function getAllAnalytics(companyId: string) {
