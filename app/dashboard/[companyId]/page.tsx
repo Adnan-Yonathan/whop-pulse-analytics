@@ -48,7 +48,7 @@ export default async function DashboardPage({
 			companyId={companyId}
 			companyName={company.title}
 			userId={userId}
-			userName={user.name}
+			userName={user.name || 'User'}
 		/>
 	);
 }
