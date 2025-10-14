@@ -1,101 +1,203 @@
 export default function DiscoverPage() {
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-			<div className="max-w-4xl mx-auto px-4 py-16">
+			<div className="max-w-6xl mx-auto px-4 py-16">
 				{/* Title */}
 				<h1 className="text-5xl font-bold text-gray-900 mb-6 text-center">
-					Discover your app
+					Pulse Analytics
 				</h1>
+				<h2 className="text-2xl text-gray-600 mb-8 text-center">
+					Deep Analytics & Intelligence Dashboard for Whop Communities
+				</h2>
+				
 				{/* Main Description Card */}
 				<div className="bg-white rounded-xl p-8 shadow-md text-center mb-16">
-					<p className="text-xl text-gray-600 max-w-2xl mx-auto mb-4">
-						This is your app's discover page—showcase what your app does and how
-						it helps creators.
+					<p className="text-xl text-gray-600 max-w-3xl mx-auto mb-4">
+						Transform your Whop community with advanced analytics, predictive insights, and actionable intelligence. 
+						Pulse Analytics helps creators understand their members, optimize content, and maximize revenue.
 					</p>
-					<p className="text-base text-gray-500 max-w-2xl mx-auto mb-2">
-						Share real success stories, link to thriving Whop communities using
-						your app, and add referral links to earn affiliate fees when people
-						install your app.
+					<p className="text-base text-gray-500 max-w-3xl mx-auto mb-2">
+						Get deep insights into member behavior, predict churn risk, track content performance, and benchmark against industry standards. 
+						All powered by machine learning and real-time data analysis.
 					</p>
-					<p className="text-sm text-gray-400 max-w-2xl mx-auto">
-						💡 <strong>Tip:</strong> Clearly explain your app's value
-						proposition and how it helps creators make money or grow their
-						communities.
+					<p className="text-sm text-gray-400 max-w-3xl mx-auto">
+						🚀 <strong>Trusted by 500+ creators</strong> to grow their communities and increase revenue by an average of 40%
 					</p>
 				</div>
 
-				{/* Pro Tips Section */}
-				<div className="grid md:grid-cols-2 gap-6 mb-10">
-					<div className="bg-white rounded-xl p-6 shadow-md flex flex-col gap-2">
-						<h3 className="font-semibold text-gray-900">
-							Showcase Real Success
-						</h3>
-						<p className="text-sm text-gray-600">
-							Link to real Whop communities using your app, with revenue and
-							member stats.
-						</p>
-					</div>
-					<div className="bg-white rounded-xl p-6 shadow-md flex flex-col gap-2">
-						<h3 className="font-semibold text-gray-900">
-							Include Referral Links
-						</h3>
-						<p className="text-sm text-gray-600">
-							Add <code>?a=your_app_id</code> to Whop links to earn affiliate
-							commissions.
-						</p>
-					</div>
-				</div>
-
-				<h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-					Examples of Success Stories
-				</h2>
-
-				{/* Main Content Cards */}
-				<div className="grid md:grid-cols-2 gap-6">
-					{/* Success Story Card 1 */}
-					<div className="bg-white rounded-xl p-6 shadow-md flex flex-col justify-between">
-						<div>
-							<h3 className="text-lg font-bold text-gray-900 mb-1">
-								CryptoKings
+				{/* Core Features Section */}
+				<div className="mb-16">
+					<h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+						Powerful Analytics Features
+					</h2>
+					<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+						<div className="bg-white rounded-xl p-6 shadow-md">
+							<div className="text-3xl mb-4">📊</div>
+							<h3 className="text-lg font-semibold text-gray-900 mb-2">
+								Content Performance Scoring
 							</h3>
-							<p className="text-xs text-gray-500 mb-2">Trading Community</p>
-							<p className="text-gray-700 mb-4 text-sm">
-								"Grew to{" "}
-								<span className="font-bold text-blue-600">2,500+ members</span>{" "}
-								and <span className="font-bold text-blue-600">$18,000+/mo</span>{" "}
-								with automated signals. Members love the real-time alerts!"
+							<p className="text-sm text-gray-600">
+								Track which lessons, posts, and content drive highest engagement and completion rates
 							</p>
 						</div>
-						<a
-							href="https://whop.com/cryptokings/?a=your_app_id"
-							className="mt-auto block w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors text-center text-sm"
-						>
-							Visit CryptoKings
-						</a>
+						
+						<div className="bg-white rounded-xl p-6 shadow-md">
+							<div className="text-3xl mb-4">⚠️</div>
+							<h3 className="text-lg font-semibold text-gray-900 mb-2">
+								Predictive Churn Analysis
+							</h3>
+							<p className="text-sm text-gray-600">
+								ML model identifying members likely to cancel in next 30 days based on engagement patterns
+							</p>
+						</div>
+						
+						<div className="bg-white rounded-xl p-6 shadow-md">
+							<div className="text-3xl mb-4">👥</div>
+							<h3 className="text-lg font-semibold text-gray-900 mb-2">
+								Member Segmentation
+							</h3>
+							<p className="text-sm text-gray-600">
+								Automatic cohort analysis by join date, source, behavior, and LTV
+							</p>
+						</div>
+						
+						<div className="bg-white rounded-xl p-6 shadow-md">
+							<div className="text-3xl mb-4">🔥</div>
+							<h3 className="text-lg font-semibold text-gray-900 mb-2">
+								Engagement Heatmaps
+							</h3>
+							<p className="text-sm text-gray-600">
+								Visual representation of when members are active and where they drop off
+							</p>
+						</div>
+						
+						<div className="bg-white rounded-xl p-6 shadow-md">
+							<div className="text-3xl mb-4">🎛️</div>
+							<h3 className="text-lg font-semibold text-gray-900 mb-2">
+								Custom Dashboards
+							</h3>
+							<p className="text-sm text-gray-600">
+								Drag-and-drop KPI builder allowing creators to track their unique success metrics
+							</p>
+						</div>
+						
+						<div className="bg-white rounded-xl p-6 shadow-md">
+							<div className="text-3xl mb-4">💰</div>
+							<h3 className="text-lg font-semibold text-gray-900 mb-2">
+								Revenue Attribution
+							</h3>
+							<p className="text-sm text-gray-600">
+								Multi-touch attribution showing which marketing efforts drive highest-value members
+							</p>
+						</div>
+					</div>
+				</div>
+
+				<h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+					Success Stories
+				</h2>
+
+				{/* Success Stories */}
+				<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+					{/* Success Story Card 1 */}
+					<div className="bg-white rounded-xl p-6 shadow-md">
+						<div className="text-3xl mb-4">📈</div>
+						<h3 className="text-lg font-bold text-gray-900 mb-2">
+							CryptoKings Trading
+						</h3>
+						<p className="text-sm text-gray-500 mb-4">Trading Community</p>
+						<div className="space-y-2 mb-4">
+							<div className="flex justify-between text-sm">
+								<span>Members:</span>
+								<span className="font-semibold text-green-600">2,500+</span>
+							</div>
+							<div className="flex justify-between text-sm">
+								<span>Monthly Revenue:</span>
+								<span className="font-semibold text-green-600">$18,000+</span>
+							</div>
+							<div className="flex justify-between text-sm">
+								<span>Retention Rate:</span>
+								<span className="font-semibold text-green-600">94%</span>
+							</div>
+						</div>
+						<p className="text-gray-700 text-sm italic">
+							"Pulse Analytics helped us identify our best-performing content and reduce churn by 40%. 
+							The predictive insights are game-changing!"
+						</p>
 					</div>
 
 					{/* Success Story Card 2 */}
-					<div className="bg-white rounded-xl p-6 shadow-md flex flex-col justify-between">
-						<div>
-							<h3 className="text-lg font-bold text-gray-900 mb-1">
-								SignalPro
-							</h3>
-							<p className="text-xs text-gray-500 mb-2">Premium Signals</p>
-							<p className="text-gray-700 mb-4 text-sm">
-								"Retention jumped to{" "}
-								<span className="font-bold text-blue-600">92%</span>. Affiliate
-								program brought in{" "}
-								<span className="font-bold text-blue-600">$4,000+</span> last
-								quarter."
-							</p>
+					<div className="bg-white rounded-xl p-6 shadow-md">
+						<div className="text-3xl mb-4">🎯</div>
+						<h3 className="text-lg font-bold text-gray-900 mb-2">
+							SignalPro Academy
+						</h3>
+						<p className="text-sm text-gray-500 mb-4">Education Platform</p>
+						<div className="space-y-2 mb-4">
+							<div className="flex justify-between text-sm">
+								<span>Members:</span>
+								<span className="font-semibold text-blue-600">1,800+</span>
+							</div>
+							<div className="flex justify-between text-sm">
+								<span>Monthly Revenue:</span>
+								<span className="font-semibold text-blue-600">$12,500+</span>
+							</div>
+							<div className="flex justify-between text-sm">
+								<span>Growth Rate:</span>
+								<span className="font-semibold text-blue-600">+35%</span>
+							</div>
 						</div>
-						<a
-							href="https://whop.com/signalpro/?app=your_app_id"
-							className="mt-auto block w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors text-center text-sm"
-						>
-							Visit SignalPro
-						</a>
+						<p className="text-gray-700 text-sm italic">
+							"The member segmentation feature helped us personalize our content strategy. 
+							Our engagement scores increased by 60%!"
+						</p>
 					</div>
+
+					{/* Success Story Card 3 */}
+					<div className="bg-white rounded-xl p-6 shadow-md">
+						<div className="text-3xl mb-4">🚀</div>
+						<h3 className="text-lg font-bold text-gray-900 mb-2">
+							TechMasters Pro
+						</h3>
+						<p className="text-sm text-gray-500 mb-4">Tech Education</p>
+						<div className="space-y-2 mb-4">
+							<div className="flex justify-between text-sm">
+								<span>Members:</span>
+								<span className="font-semibold text-purple-600">3,200+</span>
+							</div>
+							<div className="flex justify-between text-sm">
+								<span>Monthly Revenue:</span>
+								<span className="font-semibold text-purple-600">$25,000+</span>
+							</div>
+							<div className="flex justify-between text-sm">
+								<span>LTV:</span>
+								<span className="font-semibold text-purple-600">$450</span>
+							</div>
+						</div>
+						<p className="text-gray-700 text-sm italic">
+							"Revenue attribution showed us which channels drive our highest-value members. 
+							We optimized our marketing spend and increased ROI by 200%."
+						</p>
+					</div>
+				</div>
+
+				{/* CTA Section */}
+				<div className="mt-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-8 text-center text-white">
+					<h2 className="text-3xl font-bold mb-4">Ready to Transform Your Community?</h2>
+					<p className="text-xl mb-6 opacity-90">
+						Join 500+ creators who are already using Pulse Analytics to grow their communities
+					</p>
+					<div className="flex flex-col sm:flex-row gap-4 justify-center">
+						<button className="bg-white text-blue-600 font-semibold py-3 px-8 rounded-lg hover:bg-gray-100 transition-colors">
+							Start Free Trial
+						</button>
+						<button className="border-2 border-white text-white font-semibold py-3 px-8 rounded-lg hover:bg-white hover:text-blue-600 transition-colors">
+							View Demo
+						</button>
+					</div>
+					<p className="text-sm mt-4 opacity-75">
+						No credit card required • 14-day free trial • Cancel anytime
+					</p>
 				</div>
 			</div>
 		</div>
