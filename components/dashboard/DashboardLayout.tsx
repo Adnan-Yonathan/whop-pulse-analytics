@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { PulseLogo } from '@/components/ui/PulseLogo';
 import { 
   BarChart3, 
@@ -42,6 +44,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   userName
 }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -67,19 +70,23 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         <nav className="flex-1 px-4 py-6 space-y-2">
           {navigationItems.map((item) => {
             const Icon = item.icon;
+            const isActive = pathname === item.href;
             return (
-              <a
+              <Link
                 key={item.id}
                 href={item.href}
-                className="
+                className={`
                   flex items-center space-x-3 px-4 py-3 rounded-xl
-                  text-foreground-muted hover:text-foreground hover:bg-secondary
                   transition-all duration-200 group
-                "
+                  ${isActive 
+                    ? 'bg-primary/10 border-2 border-primary shadow-glow text-primary' 
+                    : 'text-foreground-muted hover:text-foreground hover:bg-secondary border-2 border-transparent hover:border-primary/30'
+                  }
+                `}
               >
-                <Icon className="w-5 h-5 group-hover:text-primary transition-colors" />
+                <Icon className={`w-5 h-5 transition-colors ${isActive ? 'text-primary' : 'group-hover:text-primary'}`} />
                 <span className="font-medium">{item.label}</span>
-              </a>
+              </Link>
             );
           })}
         </nav>
