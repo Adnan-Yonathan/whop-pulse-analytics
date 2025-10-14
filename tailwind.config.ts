@@ -9,40 +9,108 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Whop-inspired Design System
-        primary: {
-          DEFAULT: '#FA4616', // DragonFire
-          dragonfire: '#FA4616',
+        // Whop Native App Theme - Black & Orange
+        background: {
+          DEFAULT: '#000000', // Pure black
+          secondary: '#121212', // Dark grey for main content
+          tertiary: '#1A1A1A', // Slightly lighter for cards
+          card: '#1A1A1A', // Card background
         },
-        midnight: {
-          DEFAULT: '#141212', // Midnight
-          50: '#FCF6F5', // Snow
-          100: '#F6DCD5', // Light tint
-          200: '#EFE7FF', // Purple tint
-          300: '#D7E1F7', // Blue tint
-          400: '#D9F9CB', // Green tint
-          500: '#FFD9E7', // Pink tint
-          600: '#F9FACE', // Yellow tint
-          700: '#141212', // Midnight
-          800: '#0F0E0E', // Darker midnight
-          900: '#0A0A0A', // Darkest midnight
+        foreground: {
+          DEFAULT: '#FFFFFF', // Pure white
+          secondary: '#E5E5E5', // Light gray
+          muted: '#A0A0A0', // Muted text
+          accent: '#FF6B00', // Whop Orange
+        },
+        primary: {
+          DEFAULT: '#FF6B00', // Whop Orange
+          50: '#FFF4E6',
+          100: '#FFE9CC',
+          200: '#FFD399',
+          300: '#FFBD66',
+          400: '#FFA733',
+          500: '#FF6B00', // Main Whop orange
+          600: '#E55A00',
+          700: '#CC4F00',
+          800: '#B24400',
+          900: '#993900',
+          whop: '#FF6B00',
+        },
+        secondary: {
+          DEFAULT: '#121212',
+          50: '#F5F5F5',
+          100: '#E5E5E5',
+          200: '#CCCCCC',
+          300: '#B3B3B3',
+          400: '#999999',
+          500: '#808080',
+          600: '#666666',
+          700: '#4D4D4D',
+          800: '#333333',
+          900: '#121212',
         },
         accent: {
-          lemonlime: '#DBF505', // LemonLime
-          byzantine: '#1754D8', // ByzantineBlue
+          whop: '#FF6B00', // Whop Orange
+          success: '#10B981',
+          warning: '#F59E0B',
+          error: '#EF4444',
+          info: '#3B82F6',
         },
-        background: {
-          DEFAULT: '#FCF6F5', // Snow
-          snow: '#FCF6F5',
+        border: {
+          DEFAULT: '#333333',
+          light: '#404040',
+          dark: '#1A1A1A',
+        },
+        muted: {
+          DEFAULT: '#1A1A1A',
+          foreground: '#A0A0A0',
+        },
+        card: {
+          DEFAULT: '#1A1A1A',
+          foreground: '#FFFFFF',
+        },
+        popover: {
+          DEFAULT: '#1A1A1A',
+          foreground: '#FFFFFF',
+        },
+        input: {
+          DEFAULT: '#1A1A1A',
+          foreground: '#FFFFFF',
+        },
+        ring: {
+          DEFAULT: '#FF6B00',
+        },
+        // Legacy colors for compatibility
+        midnight: {
+          DEFAULT: '#141212',
+          50: '#FCF6F5',
+          100: '#F6DCD5',
+          200: '#EFE7FF',
+          300: '#D7E1F7',
+          400: '#D9F9CB',
+          500: '#FFD9E7',
+          600: '#F9FACE',
+          700: '#141212',
+          800: '#0F0E0E',
+          900: '#0A0A0A',
         },
         text: {
-          DEFAULT: '#141212', // Midnight
+          DEFAULT: '#FCF6F5',
           midnight: '#141212',
-          light: '#FCF6F5', // Snow for dark backgrounds
+          light: '#FCF6F5',
         }
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'Poppins', 'system-ui', 'sans-serif'],
+      },
+      borderRadius: {
+        'xl': '12px',
+        '2xl': '16px',
+      },
+      boxShadow: {
+        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2)',
+        'card-hover': '0 8px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3)',
+        'glow': '0 0 20px rgba(255, 107, 0, 0.3)',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',
@@ -60,10 +128,10 @@ const config: Config = {
         },
       },
       backgroundImage: {
-        'gradient-primary': 'linear-gradient(135deg, #FA4616 0%, #E03E14 100%)',
-        'gradient-accent': 'linear-gradient(135deg, #DBF505 0%, #C4E004 100%)',
-        'gradient-byzantine': 'linear-gradient(135deg, #1754D8 0%, #1441B8 100%)',
-        'gradient-midnight': 'linear-gradient(135deg, #141212 0%, #0F0E0E 100%)',
+        'gradient-primary': 'linear-gradient(135deg, #FF6B00 0%, #E55A00 100%)',
+        'gradient-whop': 'linear-gradient(135deg, #FF6B00 0%, #CC4F00 100%)',
+        'gradient-dark': 'linear-gradient(135deg, #000000 0%, #121212 100%)',
+        'gradient-card': 'linear-gradient(135deg, #1A1A1A 0%, #121212 100%)',
       },
     },
   },
