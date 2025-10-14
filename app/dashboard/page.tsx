@@ -1,6 +1,7 @@
 import { whopSdk } from "@/lib/whop-sdk";
 import { headers } from "next/headers";
 import { DashboardClient } from "@/components/dashboard/DashboardClient";
+import { Users, Activity, DollarSign, TrendingUp, ArrowUpRight } from 'lucide-react';
 
 export default async function DashboardPage() {
   let user = { name: 'Demo User' };
@@ -29,40 +30,6 @@ export default async function DashboardPage() {
     churnRate: 3.2
   };
 
-  const stats = [
-    {
-      title: 'Total Members',
-      value: analyticsData.totalMembers.toLocaleString(),
-      change: `+${analyticsData.memberGrowth}%`,
-      changeType: 'positive' as const,
-      icon: Users,
-      color: 'text-blue-400'
-    },
-    {
-      title: 'Active Members',
-      value: analyticsData.activeMembers.toLocaleString(),
-      change: `${analyticsData.engagementChange}%`,
-      changeType: 'negative' as const,
-      icon: Activity,
-      color: 'text-green-400'
-    },
-    {
-      title: 'Monthly Revenue',
-      value: `$${analyticsData.revenue.toLocaleString()}`,
-      change: `+${analyticsData.revenueGrowth}%`,
-      changeType: 'positive' as const,
-      icon: DollarSign,
-      color: 'text-primary'
-    },
-    {
-      title: 'Engagement Rate',
-      value: `${analyticsData.engagement}%`,
-      change: `${analyticsData.engagementChange}%`,
-      changeType: 'negative' as const,
-      icon: TrendingUp,
-      color: 'text-purple-400'
-    }
-  ];
 
   return (
     <DashboardClient
