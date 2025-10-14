@@ -19,6 +19,7 @@ import {
   ExternalLink,
   Calendar
 } from 'lucide-react';
+import { MessageDrawer } from '@/components/ui/MessageDrawer';
 
 interface ChurnAnalysisClientProps {
   companyId?: string;
@@ -63,6 +64,8 @@ export function ChurnAnalysisClient({
 }: ChurnAnalysisClientProps) {
   const [selectedMember, setSelectedMember] = useState<any>(null);
   const [showMemberModal, setShowMemberModal] = useState(false);
+  const [isMessageOpen, setIsMessageOpen] = useState(false);
+  const [messageTarget, setMessageTarget] = useState<{ userId: string; name: string } | null>(null);
   const { toast } = useToast();
 
   const handleExportChurnList = () => {
@@ -98,6 +101,11 @@ export function ChurnAnalysisClient({
   const handleMemberClick = (member: any) => {
     setSelectedMember(member);
     setShowMemberModal(true);
+  };
+
+  const openImmediateOutreach = (member: any) => {
+    setMessageTarget({ userId: member.id, name: member.name });
+    setIsMessageOpen(true);
   };
 
   return (
@@ -239,16 +247,10 @@ export function ChurnAnalysisClient({
                   </div>
                   <div className="flex space-x-2">
                     <button
-                      onClick={() => handleCalendlyLink('immediate_outreach', member.name, member.email)}
+                      onClick={() => openImmediateOutreach(member)}
                       className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-medium transition-colors"
                     >
                       Immediate Outreach
-                    </button>
-                    <button
-                      onClick={() => handleCalendlyLink('engagement_boost', member.name, member.email)}
-                      className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-xs font-medium transition-colors"
-                    >
-                      Engagement Boost
                     </button>
                     <button
                       onClick={() => handleCalendlyLink('retention_program', member.name, member.email)}
@@ -436,12 +438,13 @@ export function ChurnAnalysisClient({
                 <div className="flex space-x-2">
                   <button
                     onClick={() => {
-                      handleCalendlyLink('immediate_outreach', selectedMember.name, selectedMember.email);
                       setShowMemberModal(false);
+                      setMessageTarget({ userId: selectedMember.id, name: selectedMember.name });
+                      setIsMessageOpen(true);
                     }}
                     className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                   >
-                    Schedule Call
+                    Message via Whop
                   </button>
                   <button
                     onClick={() => {
@@ -459,6 +462,13 @@ export function ChurnAnalysisClient({
             </div>
           </div>
         )}
+        <MessageDrawer
+          isOpen={isMessageOpen}
+          onClose={() => setIsMessageOpen(false)}
+          recipientUserId={messageTarget?.userId || ''}
+          recipientName={messageTarget?.name || 'Member'}
+          defaultMessage={`Hey ${messageTarget?.name?.split(' ')[0] || ''}, we noticed activity dipped. Can we help with anything? – ${companyName || 'Our team'}`}
+        />
       </div>
     </DashboardLayout>
   );
