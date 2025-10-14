@@ -1,12 +1,11 @@
+import { PulseLogo } from "@/components/ui/PulseLogo";
+
 export default function Loading() {
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="h-32 rounded-2xl bg-secondary animate-pulse" />
-        ))}
+    <div className="fixed inset-0 bg-black flex items-center justify-center">
+      <div className="scale-125">
+        <PulseLogo size="lg" />
       </div>
-      <div className="h-64 rounded-2xl bg-secondary animate-pulse" />
     </div>
   );
 }
