@@ -3,6 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from './DashboardLayout';
 import { exportToCSV, generateFilename } from '@/lib/export-utils';
+import { Reveal } from '@/components/motion/Reveal';
+import { MotionButton } from '@/components/ui/MotionButton';
+import { GradientText } from '@/components/motion/GradientText';
+import { useToast } from '@/components/ui/ToastProvider';
 import { 
   BarChart3, 
   TrendingUp, 
@@ -59,6 +63,7 @@ export function BenchmarksClient({
 }: BenchmarksClientProps) {
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
   const [submissions, setSubmissions] = useState<BenchmarkSubmission[]>([]);
+  const { toast } = useToast();
   const [submissionData, setSubmissionData] = useState({
     revenue: '',
     members: '',
@@ -159,6 +164,7 @@ export function BenchmarksClient({
     exportToCSV(exportData, {
       filename: generateFilename('benchmark_report', 'csv')
     });
+    toast({ title: 'Export started', description: 'Generating benchmark report CSV' });
   };
 
   const handleCalendlyLink = (actionType: string) => {
@@ -217,11 +223,11 @@ export function BenchmarksClient({
     >
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-gradient-card rounded-2xl p-6 border border-border shadow-card">
+        <Reveal className="bg-gradient-card rounded-2xl p-6 border border-border shadow-card">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-foreground mb-2">
-                Industry Benchmarks
+                <GradientText>Industry Benchmarks</GradientText>
               </h2>
               <p className="text-foreground-muted">
                 Compare your performance against the Whop ecosystem
@@ -234,7 +240,7 @@ export function BenchmarksClient({
               </span>
             </div>
           </div>
-        </div>
+        </Reveal>
 
         {/* Benchmark Metrics */}
         <div className="space-y-6">
@@ -243,7 +249,7 @@ export function BenchmarksClient({
             const percentile = getPercentile(metric.yourValue, metric.benchmarks);
             
             return (
-              <div key={index} className="bg-card rounded-2xl p-6 border border-border shadow-card">
+              <Reveal key={index} className="bg-card rounded-2xl p-6 border border-border shadow-card">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center space-x-3">
                     <div className="p-3 rounded-xl bg-primary/10">
@@ -298,16 +304,16 @@ export function BenchmarksClient({
                     <span>{metric.format(metric.benchmarks.p90)}</span>
                   </div>
                 </div>
-              </div>
+              </Reveal>
             );
           })}
         </div>
 
         {/* Community Data */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Reveal className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-card rounded-2xl p-6 border border-border shadow-card">
             <h3 className="text-lg font-semibold text-foreground mb-4">
-              Community Insights
+              <GradientText>Community Insights</GradientText>
             </h3>
             <div className="space-y-4">
               <div className="p-4 bg-green-500/5 border border-green-500/20 rounded-xl">
@@ -335,7 +341,7 @@ export function BenchmarksClient({
 
           <div className="bg-card rounded-2xl p-6 border border-border shadow-card">
             <h3 className="text-lg font-semibold text-foreground mb-4">
-              Contribute Your Data
+              <GradientText>Contribute Your Data</GradientText>
             </h3>
             <div className="space-y-4">
               <div className="p-4 bg-secondary rounded-xl">
@@ -348,29 +354,29 @@ export function BenchmarksClient({
                 </p>
               </div>
               
-              <button
+              <MotionButton
                 onClick={() => setShowSubmissionModal(true)}
                 className="w-full flex items-center justify-center space-x-2 bg-primary hover:bg-primary-600 text-primary-foreground px-4 py-3 rounded-xl font-medium transition-colors"
               >
                 <Upload className="w-5 h-5" />
                 <span>Submit Your Metrics</span>
-              </button>
+              </MotionButton>
               
-              <button
+              <MotionButton
                 onClick={handleExportBenchmarks}
                 className="w-full flex items-center justify-center space-x-2 bg-secondary hover:bg-secondary-800 text-secondary-foreground px-4 py-3 rounded-xl font-medium transition-colors"
               >
                 <Download className="w-5 h-5" />
                 <span>Export Benchmark Report</span>
-              </button>
+              </MotionButton>
             </div>
           </div>
-        </div>
+        </Reveal>
 
         {/* Action Items */}
-        <div className="bg-card rounded-2xl p-6 border border-border shadow-card">
+        <Reveal className="bg-card rounded-2xl p-6 border border-border shadow-card">
           <h3 className="text-lg font-semibold text-foreground mb-4">
-            Benchmark Improvement Actions
+            <GradientText>Benchmark Improvement Actions</GradientText>
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <button 
@@ -397,7 +403,7 @@ export function BenchmarksClient({
               <div className="text-sm text-foreground-muted">Compare against similar companies</div>
             </button>
           </div>
-        </div>
+        </Reveal>
 
         {/* Submission Modal */}
         {showSubmissionModal && (

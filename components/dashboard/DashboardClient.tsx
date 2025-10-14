@@ -1,6 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { staggerContainer, staggerItem } from '@/lib/motion';
+import { Counter } from '@/components/motion/Counter';
+import { MotionButton } from '@/components/ui/MotionButton';
+import { Reveal } from '@/components/motion/Reveal';
+import { GradientText } from '@/components/motion/GradientText';
+import { useToast } from '@/components/ui/ToastProvider';
 import { DashboardLayout } from './DashboardLayout';
 import { FilterModal } from './FilterModal';
 import { ConfigModal } from './ConfigModal';
@@ -63,6 +70,7 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
   userName,
   analyticsData
 }) => {
+  const { toast } = useToast();
   const [viewMode, setViewMode] = useState<'value' | 'percentage'>('value');
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
@@ -179,7 +187,7 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <motion.div variants={staggerContainer} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             const cardColors = [
@@ -190,7 +198,8 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
             const colors = cardColors[index % cardColors.length];
             
             return (
-              <div
+              <motion.div
+                variants={staggerItem}
                 key={index}
                 className={`${colors.bg} ${colors.border} rounded-2xl p-8 border shadow-lg hover:shadow-xl transition-all duration-300`}
               >
@@ -209,7 +218,21 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
                 </div>
                 <div>
                   <p className="text-3xl font-bold text-foreground mb-2">
-                    {stat.value}
+                    {viewMode === 'value' ? (
+                      stat.title === 'Monthly Revenue' ? (
+                        <Counter value={analyticsData.revenue} prefix="$" />
+                      ) : stat.title === 'Total Members' ? (
+                        <Counter value={analyticsData.totalMembers} />
+                      ) : stat.title === 'Active Members' ? (
+                        <Counter value={analyticsData.activeMembers} />
+                      ) : stat.title === 'Engagement Rate' ? (
+                        <Counter value={Math.round(analyticsData.engagement)} suffix="%" />
+                      ) : (
+                        stat.value
+                      )
+                    ) : (
+                      stat.value
+                    )}
                   </p>
                   <p className="text-base text-foreground-muted mb-4">
                     {stat.title}
@@ -228,21 +251,21 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
                     />
                   ))}
                 </div>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
 
         {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <Reveal className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Sales Report Chart */}
           <div className="bg-card rounded-2xl p-8 border border-border shadow-lg">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-foreground">Sales Report</h3>
+                <h3 className="text-xl font-semibold text-foreground"><GradientText>Sales Report</GradientText></h3>
               <div className="flex items-center space-x-2">
                 <div className="flex space-x-1">
                   {['12 Months', '6 Months', '30 Days', '7 Days'].map((period, index) => (
-                    <button
+                    <MotionButton
                       key={period}
                       className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                         index === 0 
@@ -251,19 +274,19 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
                       }`}
                     >
                       {period}
-                    </button>
+                    </MotionButton>
                   ))}
                 </div>
-                <button className="p-2 rounded-lg hover:bg-secondary transition-colors">
+                  <MotionButton className="p-2 rounded-lg hover:bg-secondary transition-colors">
                   <svg className="w-5 h-5 text-foreground-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                </button>
-                <button className="p-2 rounded-lg hover:bg-secondary transition-colors">
+                  </MotionButton>
+                  <MotionButton className="p-2 rounded-lg hover:bg-secondary transition-colors">
                   <svg className="w-5 h-5 text-foreground-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                   </svg>
-                </button>
+                  </MotionButton>
               </div>
             </div>
             
@@ -306,23 +329,23 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
           {/* Orders List */}
           <div className="bg-card rounded-2xl p-8 border border-border shadow-lg">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-foreground">Orders List</h3>
+              <h3 className="text-xl font-semibold text-foreground"><GradientText>Orders List</GradientText></h3>
               <div className="flex items-center space-x-2">
-                <button className="p-2 rounded-lg hover:bg-secondary transition-colors">
+                <MotionButton className="p-2 rounded-lg hover:bg-secondary transition-colors">
                   <svg className="w-5 h-5 text-foreground-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                   </svg>
-                </button>
-                <button className="p-2 rounded-lg hover:bg-secondary transition-colors">
+                </MotionButton>
+                <MotionButton className="p-2 rounded-lg hover:bg-secondary transition-colors">
                   <svg className="w-5 h-5 text-foreground-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                </button>
-                <button className="p-2 rounded-lg hover:bg-secondary transition-colors">
+                </MotionButton>
+                <MotionButton className="p-2 rounded-lg hover:bg-secondary transition-colors">
                   <svg className="w-5 h-5 text-foreground-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                   </svg>
-                </button>
+                </MotionButton>
               </div>
             </div>
             
@@ -367,26 +390,28 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
               ))}
             </div>
           </div>
-        </div>
+        </Reveal>
 
         {/* CTA Section */}
-        <div className="bg-gradient-primary rounded-2xl p-8 text-center">
+        <Reveal>
+          <div className="bg-gradient-primary rounded-2xl p-8 text-center">
           <h3 className="text-2xl font-bold text-white mb-4">
-            Ready to dive deeper?
+            <GradientText>Ready to dive deeper?</GradientText>
           </h3>
           <p className="text-white/80 mb-6 max-w-2xl mx-auto">
             Explore advanced analytics, set up custom dashboards, and unlock insights 
             that drive growth for your community.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white text-primary px-6 py-3 rounded-xl font-semibold hover:bg-white/90 transition-colors btn-hover">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <MotionButton className="bg-white text-primary px-6 py-3 rounded-xl font-semibold hover:bg-white/90 transition-colors btn-hover" onClick={() => toast({ title: 'Opening analytics' })}>
               Explore Analytics
-            </button>
-            <button className="border-2 border-white text-white px-6 py-3 rounded-xl font-semibold hover:bg-white hover:text-primary transition-colors btn-hover">
+              </MotionButton>
+              <MotionButton className="border-2 border-white text-white px-6 py-3 rounded-xl font-semibold hover:bg-white hover:text-primary transition-colors btn-hover" onClick={() => toast({ title: 'Creating dashboard' })}>
               Create Dashboard
-            </button>
+              </MotionButton>
           </div>
         </div>
+        </Reveal>
 
         {/* Modals */}
         <FilterModal

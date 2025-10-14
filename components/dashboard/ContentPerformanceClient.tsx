@@ -3,6 +3,10 @@
 import React from 'react';
 import { DashboardLayout } from './DashboardLayout';
 import { exportToCSV, generateFilename } from '@/lib/export-utils';
+import { Reveal } from '@/components/motion/Reveal';
+import { MotionButton } from '@/components/ui/MotionButton';
+import { GradientText } from '@/components/motion/GradientText';
+import { useToast } from '@/components/ui/ToastProvider';
 import { 
   TrendingUp, 
   Eye, 
@@ -46,6 +50,7 @@ export function ContentPerformanceClient({
   contentData,
   topContent
 }: ContentPerformanceClientProps) {
+  const { toast } = useToast();
   
   const handleExport = () => {
     const exportData = topContent.map(content => ({
@@ -61,6 +66,7 @@ export function ContentPerformanceClient({
     exportToCSV(exportData, {
       filename: generateFilename('content_performance', 'csv')
     });
+    toast({ title: 'Export started', description: 'Generating content performance CSV' });
   };
 
   return (
@@ -72,11 +78,11 @@ export function ContentPerformanceClient({
     >
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-gradient-card rounded-2xl p-6 border border-border shadow-card">
+        <Reveal className="bg-gradient-card rounded-2xl p-6 border border-border shadow-card">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-foreground mb-2">
-                Content Performance Scoring
+                <GradientText>Content Performance Scoring</GradientText>
               </h2>
               <p className="text-foreground-muted">
                 Track which lessons, posts, and content drive highest engagement
@@ -87,10 +93,10 @@ export function ContentPerformanceClient({
               <span className="text-sm text-foreground-muted">Live Scoring</span>
             </div>
           </div>
-        </div>
+        </Reveal>
 
         {/* Overview Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+        <Reveal className="grid grid-cols-1 md:grid-cols-5 gap-6">
           <div className="bg-card rounded-2xl p-6 border border-border shadow-card card-hover">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 rounded-xl bg-primary/10">
@@ -165,21 +171,21 @@ export function ContentPerformanceClient({
               Total downloads
             </div>
           </div>
-        </div>
+        </Reveal>
 
         {/* Top Performing Content */}
-        <div className="bg-card rounded-2xl p-6 border border-border shadow-card">
+        <Reveal className="bg-card rounded-2xl p-6 border border-border shadow-card">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-foreground">
-              Top Performing Content
+              <GradientText>Top Performing Content</GradientText>
             </h3>
-            <button
+            <MotionButton
               onClick={handleExport}
               className="flex items-center space-x-2 bg-primary hover:bg-primary-600 text-primary-foreground px-4 py-2 rounded-xl text-sm font-medium transition-colors btn-hover"
             >
               <Download className="w-4 h-4" />
               <span>Export CSV</span>
-            </button>
+            </MotionButton>
           </div>
           
           <div className="space-y-4">
@@ -222,13 +228,13 @@ export function ContentPerformanceClient({
               </div>
             ))}
           </div>
-        </div>
+        </Reveal>
 
         {/* Content Type Performance */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Reveal className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-card rounded-2xl p-6 border border-border shadow-card">
             <h3 className="text-lg font-semibold text-foreground mb-4">
-              Performance by Type
+              <GradientText>Performance by Type</GradientText>
             </h3>
             <div className="space-y-4">
               {[
@@ -260,7 +266,7 @@ export function ContentPerformanceClient({
 
           <div className="bg-card rounded-2xl p-6 border border-border shadow-card">
             <h3 className="text-lg font-semibold text-foreground mb-4">
-              Content Insights
+              <GradientText>Content Insights</GradientText>
             </h3>
             <div className="space-y-4">
               <div className="p-4 bg-green-500/5 border border-green-500/20 rounded-xl">
@@ -285,7 +291,7 @@ export function ContentPerformanceClient({
               </div>
             </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </DashboardLayout>
   );

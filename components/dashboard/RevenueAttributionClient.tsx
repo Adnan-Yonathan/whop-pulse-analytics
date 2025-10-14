@@ -3,15 +3,14 @@
 import React from 'react';
 import { DashboardLayout } from './DashboardLayout';
 import { exportToCSV, generateFilename } from '@/lib/export-utils';
-import { 
-  DollarSign, 
-  TrendingUp, 
-  Users, 
+import { Reveal } from '@/components/motion/Reveal';
+import {
+  DollarSign,
+  TrendingUp,
+  Users,
   Target,
   BarChart3,
-  Download,
-  ExternalLink,
-  Calendar
+  Download
 } from 'lucide-react';
 
 interface RevenueAttributionClientProps {
@@ -45,7 +44,6 @@ export function RevenueAttributionClient({
   revenueData,
   attributionSources
 }: RevenueAttributionClientProps) {
-  
   const handleExportRevenueData = () => {
     const exportData = attributionSources.map(source => ({
       'Source': source.source,
@@ -81,7 +79,7 @@ export function RevenueAttributionClient({
     >
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-gradient-card rounded-2xl p-6 border border-border shadow-card">
+        <Reveal className="bg-gradient-card rounded-2xl p-6 border border-border shadow-card">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-foreground mb-2">
@@ -96,10 +94,10 @@ export function RevenueAttributionClient({
               <span className="text-sm text-foreground-muted">Real-time tracking</span>
             </div>
           </div>
-        </div>
+        </Reveal>
 
         {/* Overview Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+        <Reveal className="grid grid-cols-1 md:grid-cols-5 gap-6">
           <div className="bg-card rounded-2xl p-6 border border-border shadow-card card-hover">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 rounded-xl bg-primary/10">
@@ -174,10 +172,10 @@ export function RevenueAttributionClient({
               Month over month
             </div>
           </div>
-        </div>
+        </Reveal>
 
         {/* Revenue Attribution Sources */}
-        <div className="bg-card rounded-2xl p-6 border border-border shadow-card">
+        <Reveal className="bg-card rounded-2xl p-6 border border-border shadow-card">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-foreground">
               Revenue by Source
@@ -243,10 +241,10 @@ export function RevenueAttributionClient({
               </div>
             ))}
           </div>
-        </div>
+        </Reveal>
 
         {/* Revenue Trends */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Reveal className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-card rounded-2xl p-6 border border-border shadow-card">
             <h3 className="text-lg font-semibold text-foreground mb-4">
               Revenue Trend (Last 6 Months)
@@ -299,10 +297,10 @@ export function RevenueAttributionClient({
               ))}
             </div>
           </div>
-        </div>
+        </Reveal>
 
         {/* Attribution Insights */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Reveal className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-card rounded-2xl p-6 border border-border shadow-card">
             <h3 className="text-lg font-semibold text-foreground mb-4">
               Attribution Insights
@@ -361,7 +359,7 @@ export function RevenueAttributionClient({
               </button>
             </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </DashboardLayout>
   );

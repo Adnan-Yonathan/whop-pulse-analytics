@@ -3,6 +3,9 @@
 import React, { useState } from 'react';
 import { DashboardLayout } from './DashboardLayout';
 import { exportToCSV, generateFilename } from '@/lib/export-utils';
+import { Reveal } from '@/components/motion/Reveal';
+import { MotionButton } from '@/components/ui/MotionButton';
+import { GradientText } from '@/components/motion/GradientText';
 import { 
   Users, 
   TrendingUp, 
@@ -177,11 +180,11 @@ export function MemberSegmentationClient({
     >
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-gradient-card rounded-2xl p-6 border border-border shadow-card">
+        <Reveal className="bg-gradient-card rounded-2xl p-6 border border-border shadow-card">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-foreground mb-2">
-                Member Segmentation
+                <GradientText>Member Segmentation</GradientText>
               </h2>
               <p className="text-foreground-muted">
                 Automatic cohort analysis showing which segments perform best
@@ -192,10 +195,10 @@ export function MemberSegmentationClient({
               <span className="text-sm text-foreground-muted">Auto-updated</span>
             </div>
           </div>
-        </div>
+        </Reveal>
 
         {/* Overview Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Reveal className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="bg-card rounded-2xl p-6 border border-border shadow-card card-hover">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 rounded-xl bg-primary/10">
@@ -255,10 +258,10 @@ export function MemberSegmentationClient({
               Active cohorts
             </div>
           </div>
-        </div>
+        </Reveal>
 
         {/* Member Segments */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Reveal className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {segments.map((segment) => (
             <div key={segment.id} className="bg-card rounded-2xl p-6 border border-border shadow-card card-hover">
               <div className="flex items-center justify-between mb-4">
@@ -339,29 +342,29 @@ export function MemberSegmentationClient({
               </div>
               
               <div className="flex space-x-2">
-                <button 
+                <MotionButton 
                   onClick={() => handleViewMembers(segment.id, segment.name)}
                   className="flex-1 bg-primary hover:bg-primary-600 text-primary-foreground px-3 py-2 rounded-lg text-sm font-medium transition-colors btn-hover flex items-center justify-center space-x-2"
                 >
                   <Eye className="w-4 h-4" />
                   <span>View Members</span>
-                </button>
-                <button 
+                </MotionButton>
+                <MotionButton 
                   onClick={() => handleCalendlyLink(segment.name)}
                   className="flex-1 bg-secondary hover:bg-secondary-800 text-secondary-foreground px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center space-x-2"
                 >
                   <CalendarIcon className="w-4 h-4" />
                   <span>Create Campaign</span>
-                </button>
+                </MotionButton>
               </div>
             </div>
           ))}
-        </div>
+        </Reveal>
 
         {/* Segment Insights */}
-        <div className="bg-card rounded-2xl p-6 border border-border shadow-card">
+        <Reveal className="bg-card rounded-2xl p-6 border border-border shadow-card">
           <h3 className="text-lg font-semibold text-foreground mb-4">
-            Segment Insights & Recommendations
+            <GradientText>Segment Insights & Recommendations</GradientText>
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
@@ -396,7 +399,7 @@ export function MemberSegmentationClient({
               </div>
             </div>
           </div>
-        </div>
+        </Reveal>
 
         {/* Members Modal */}
         {showMembersModal && selectedSegment && (
@@ -407,12 +410,12 @@ export function MemberSegmentationClient({
                   {selectedSegment} Members ({segmentMembers.length})
                 </h3>
                 <div className="flex items-center space-x-2">
-                  <button
+                  <MotionButton
                     onClick={handleExportMembers}
                     className="flex items-center space-x-2 bg-primary hover:bg-primary-600 text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                   >
                     <span>Export CSV</span>
-                  </button>
+                  </MotionButton>
                   <button
                     onClick={() => setShowMembersModal(false)}
                     className="p-2 rounded-lg hover:bg-secondary transition-colors"

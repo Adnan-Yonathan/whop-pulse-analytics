@@ -3,6 +3,10 @@
 import React, { useState } from 'react';
 import { DashboardLayout } from './DashboardLayout';
 import { exportToCSV, generateFilename } from '@/lib/export-utils';
+import { Reveal } from '@/components/motion/Reveal';
+import { MotionButton } from '@/components/ui/MotionButton';
+import { GradientText } from '@/components/motion/GradientText';
+import { useToast } from '@/components/ui/ToastProvider';
 import { 
   AlertTriangle, 
   TrendingDown, 
@@ -59,6 +63,7 @@ export function ChurnAnalysisClient({
 }: ChurnAnalysisClientProps) {
   const [selectedMember, setSelectedMember] = useState<any>(null);
   const [showMemberModal, setShowMemberModal] = useState(false);
+  const { toast } = useToast();
 
   const handleExportChurnList = () => {
     const exportData = highRiskMembers.map(member => ({
@@ -76,6 +81,7 @@ export function ChurnAnalysisClient({
     exportToCSV(exportData, {
       filename: generateFilename('churn_risk_members', 'csv')
     });
+    toast({ title: 'Export started', description: 'Generating churn list CSV' });
   };
 
   const handleCalendlyLink = (actionType: string, memberName?: string, memberEmail?: string) => {
@@ -103,11 +109,11 @@ export function ChurnAnalysisClient({
     >
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-gradient-card rounded-2xl p-6 border border-border shadow-card">
+        <Reveal className="bg-gradient-card rounded-2xl p-6 border border-border shadow-card">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-foreground mb-2">
-                Predictive Churn Analysis
+                <GradientText>Predictive Churn Analysis</GradientText>
               </h2>
               <p className="text-foreground-muted">
                 ML-powered insights to identify members at risk of churning
@@ -118,10 +124,10 @@ export function ChurnAnalysisClient({
               <span className="text-sm text-foreground-muted">Model Active</span>
             </div>
           </div>
-        </div>
+        </Reveal>
 
         {/* Risk Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Reveal className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="bg-card rounded-2xl p-6 border border-border shadow-card card-hover">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 rounded-xl bg-red-500/10">
@@ -181,21 +187,21 @@ export function ChurnAnalysisClient({
               Next 30 days
             </div>
           </div>
-        </div>
+        </Reveal>
 
         {/* High-Risk Members */}
-        <div className="bg-card rounded-2xl p-6 border border-border shadow-card">
+        <Reveal className="bg-card rounded-2xl p-6 border border-border shadow-card">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-foreground">
-              High-Risk Members Requiring Immediate Attention
+              <GradientText>High-Risk Members Requiring Immediate Attention</GradientText>
             </h3>
-            <button
+            <MotionButton
               onClick={handleExportChurnList}
               className="flex items-center space-x-2 bg-primary hover:bg-primary-600 text-primary-foreground px-4 py-2 rounded-xl text-sm font-medium transition-colors btn-hover"
             >
               <Download className="w-4 h-4" />
               <span>Export List</span>
-            </button>
+            </MotionButton>
           </div>
           
           <div className="space-y-4">
@@ -255,12 +261,12 @@ export function ChurnAnalysisClient({
               </div>
             ))}
           </div>
-        </div>
+        </Reveal>
 
         {/* Risk Factors */}
-        <div className="bg-card rounded-2xl p-6 border border-border shadow-card">
+        <Reveal className="bg-card rounded-2xl p-6 border border-border shadow-card">
           <h3 className="text-lg font-semibold text-foreground mb-4">
-            Top Risk Factors
+            <GradientText>Top Risk Factors</GradientText>
           </h3>
           <div className="space-y-4">
             {riskFactors.map((factor, index) => (
@@ -281,10 +287,10 @@ export function ChurnAnalysisClient({
               </div>
             ))}
           </div>
-        </div>
+        </Reveal>
 
         {/* Recommended Actions */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Reveal className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="bg-card rounded-2xl p-6 border border-border shadow-card">
             <h3 className="text-lg font-semibold text-foreground mb-4">
               Immediate Actions
@@ -374,7 +380,7 @@ export function ChurnAnalysisClient({
               </div>
             </div>
           </div>
-        </div>
+        </Reveal>
 
         {/* Member Profile Modal */}
         {showMemberModal && selectedMember && (

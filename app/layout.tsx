@@ -2,6 +2,7 @@ import { WhopApp } from "@whop/react/components";
 import type { Metadata } from "next";
 import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
+import { ToastProvider } from "@/components/ui/ToastProvider";
 
 const inter = Inter({
 	variable: "--font-inter",
@@ -31,7 +32,9 @@ export default function RootLayout({
 			<body
 				className={`${inter.variable} ${poppins.variable} antialiased bg-background text-foreground`}
 			>
-				<WhopApp>{children}</WhopApp>
+                <WhopApp>
+                    <ToastProvider>{children}</ToastProvider>
+                </WhopApp>
 			</body>
 		</html>
 	);

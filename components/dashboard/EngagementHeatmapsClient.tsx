@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { DashboardLayout } from './DashboardLayout';
+import { Reveal } from '@/components/motion/Reveal';
 import { 
   Activity, 
   Clock, 
@@ -60,7 +61,7 @@ export const EngagementHeatmapsClient: React.FC<EngagementHeatmapsClientProps> =
     >
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-gradient-card rounded-2xl p-6 border border-border shadow-card">
+        <Reveal className="bg-gradient-card rounded-2xl p-6 border border-border shadow-card">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-foreground mb-2">
@@ -75,10 +76,10 @@ export const EngagementHeatmapsClient: React.FC<EngagementHeatmapsClientProps> =
               <span className="text-sm text-foreground-muted">Live Data</span>
             </div>
           </div>
-        </div>
+        </Reveal>
 
         {/* Activity by Hour */}
-        <div className="bg-card rounded-2xl p-6 border border-border shadow-card">
+        <Reveal className="bg-card rounded-2xl p-6 border border-border shadow-card">
           <h3 className="text-lg font-semibold text-foreground mb-4">
             Activity by Hour of Day
           </h3>
@@ -106,10 +107,10 @@ export const EngagementHeatmapsClient: React.FC<EngagementHeatmapsClientProps> =
             </div>
             <span>High Activity</span>
           </div>
-        </div>
+        </Reveal>
 
         {/* Activity by Day */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Reveal className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-card rounded-2xl p-6 border border-border shadow-card">
             <h3 className="text-lg font-semibold text-foreground mb-4">
               Activity by Day of Week
@@ -163,10 +164,10 @@ export const EngagementHeatmapsClient: React.FC<EngagementHeatmapsClientProps> =
               ))}
             </div>
           </div>
-        </div>
+        </Reveal>
 
         {/* Geographic Distribution */}
-        <div className="bg-card rounded-2xl p-6 border border-border shadow-card">
+        <Reveal className="bg-card rounded-2xl p-6 border border-border shadow-card">
           <h3 className="text-lg font-semibold text-foreground mb-4">
             Geographic Distribution
           </h3>
@@ -186,10 +187,10 @@ export const EngagementHeatmapsClient: React.FC<EngagementHeatmapsClientProps> =
               </div>
             ))}
           </div>
-        </div>
+        </Reveal>
 
         {/* Engagement Insights */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Reveal className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-card rounded-2xl p-6 border border-border shadow-card">
             <h3 className="text-lg font-semibold text-foreground mb-4">
               Peak Activity Times
@@ -245,7 +246,7 @@ export const EngagementHeatmapsClient: React.FC<EngagementHeatmapsClientProps> =
               </div>
             </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </DashboardLayout>
   );

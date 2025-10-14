@@ -3,6 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from './DashboardLayout';
 import { CustomDashboardBuilder } from './CustomDashboardBuilder';
+import { Reveal } from '@/components/motion/Reveal';
+import { MotionButton } from '@/components/ui/MotionButton';
+import { GradientText } from '@/components/motion/GradientText';
 import { 
   Plus, 
   BarChart3, 
@@ -144,7 +147,7 @@ export function CustomDashboardsClient({
                 ←
               </button>
               <h1 className="text-xl font-semibold text-foreground">
-                {selectedDashboard ? `Edit ${selectedDashboard.name}` : 'Create New Dashboard'}
+                <GradientText>{selectedDashboard ? `Edit ${selectedDashboard.name}` : 'Create New Dashboard'}</GradientText>
               </h1>
             </div>
           </div>
@@ -171,28 +174,28 @@ export function CustomDashboardsClient({
     >
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-gradient-card rounded-2xl p-6 border border-border shadow-card">
+        <Reveal className="bg-gradient-card rounded-2xl p-6 border border-border shadow-card">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-foreground mb-2">
-                Custom Dashboards
+                <GradientText>Custom Dashboards</GradientText>
               </h2>
               <p className="text-foreground-muted">
                 Drag-and-drop KPI builder allowing you to track your unique success metrics
               </p>
             </div>
-            <button 
+            <MotionButton 
               onClick={handleCreateDashboard}
               className="bg-primary hover:bg-primary-600 text-primary-foreground px-4 py-2 rounded-xl text-sm font-medium transition-colors btn-hover flex items-center space-x-2"
             >
               <Plus className="w-4 h-4" />
               <span>Create Dashboard</span>
-            </button>
+            </MotionButton>
           </div>
-        </div>
+        </Reveal>
 
         {/* Dashboard Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Reveal className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="bg-card rounded-2xl p-6 border border-border shadow-card card-hover">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 rounded-xl bg-primary/10">
@@ -252,10 +255,10 @@ export function CustomDashboardsClient({
               Shared with team
             </div>
           </div>
-        </div>
+        </Reveal>
 
         {/* Custom Dashboards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Reveal className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {allDashboards.map((dashboard) => (
             <div key={dashboard.id} className="bg-card rounded-2xl p-6 border border-border shadow-card card-hover">
               <div className="flex items-center justify-between mb-4">
@@ -298,13 +301,13 @@ export function CustomDashboardsClient({
               </div>
               
               <div className="flex space-x-2">
-                <button 
+                <MotionButton 
                   onClick={() => handleEditDashboard(dashboard)}
                   className="flex-1 bg-primary hover:bg-primary-600 text-primary-foreground px-3 py-2 rounded-lg text-sm font-medium transition-colors btn-hover flex items-center justify-center space-x-1"
                 >
                   <Eye className="w-4 h-4" />
                   <span>View</span>
-                </button>
+                </MotionButton>
                 <button 
                   onClick={() => handleEditDashboard(dashboard)}
                   className="p-2 bg-secondary hover:bg-secondary-800 text-secondary-foreground rounded-lg transition-colors"
@@ -326,12 +329,12 @@ export function CustomDashboardsClient({
               </div>
             </div>
           ))}
-        </div>
+        </Reveal>
 
         {/* Available Widgets */}
-        <div className="bg-card rounded-2xl p-6 border border-border shadow-card">
+        <Reveal className="bg-card rounded-2xl p-6 border border-border shadow-card">
           <h3 className="text-lg font-semibold text-foreground mb-4">
-            Available Widgets
+            <GradientText>Available Widgets</GradientText>
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
@@ -353,13 +356,13 @@ export function CustomDashboardsClient({
               </div>
             ))}
           </div>
-        </div>
+        </Reveal>
 
         {/* Dashboard Builder Tips */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Reveal className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-card rounded-2xl p-6 border border-border shadow-card">
             <h3 className="text-lg font-semibold text-foreground mb-4">
-              Dashboard Builder Tips
+              <GradientText>Dashboard Builder Tips</GradientText>
             </h3>
             <div className="space-y-4">
               <div className="p-4 bg-blue-500/5 border border-blue-500/20 rounded-xl">
@@ -387,7 +390,7 @@ export function CustomDashboardsClient({
 
           <div className="bg-card rounded-2xl p-6 border border-border shadow-card">
             <h3 className="text-lg font-semibold text-foreground mb-4">
-              Quick Actions
+              <GradientText>Quick Actions</GradientText>
             </h3>
             <div className="space-y-3">
               <button 
@@ -415,7 +418,7 @@ export function CustomDashboardsClient({
               </button>
             </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </DashboardLayout>
   );
