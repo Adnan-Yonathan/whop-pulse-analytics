@@ -53,6 +53,9 @@ importers:
       recharts:
         specifier: ^2.8.0
         version: 2.15.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      swr:
+        specifier: ^2.3.6
+        version: 2.3.6(react@19.1.0)
       tailwind-merge:
         specifier: ^2.0.0
         version: 2.6.0
@@ -1978,6 +1981,10 @@ packages:
   decimal.js@10.5.0:
     resolution: {integrity: sha512-8vDa8Qxvr/+d94hSh5P3IJwI5t8/c0KsMp+g8bNw9cY2icONa5aPfvKeieW1WlG0WQYwwhJ7mjui2xtiePQSXw==}
 
+  dequal@2.0.3:
+    resolution: {integrity: sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==}
+    engines: {node: '>=6'}
+
   detect-libc@2.0.4:
     resolution: {integrity: sha512-3UDv+G9CsCKO1WKMGw9fwq/SWJYbI0c5Y7LU1AXYoDdbhE2AHQ6N6Nb34sG8Fj7T5APy8qXDCKuuIHd1BR0tVA==}
     engines: {node: '>=8'}
@@ -2054,8 +2061,8 @@ packages:
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
 
-  graphql-request@7.2.0:
-    resolution: {integrity: sha512-0GR7eQHBFYz372u9lxS16cOtEekFlZYB2qOyq8wDvzRmdRSJ0mgUVX1tzNcIzk3G+4NY+mGtSz411wZdeDF/+A==}
+  graphql-request@7.3.0:
+    resolution: {integrity: sha512-cxmQfa/ZknSNtuJpgPpr4CQTwPjSP57EYzOyNoyhPakXqr1yvTtOXNFbxQYaz4DMQ801i2DjnwUkifGLjtXhSQ==}
     peerDependencies:
       graphql: 14 - 16
 
@@ -2411,6 +2418,11 @@ packages:
         optional: true
       babel-plugin-macros:
         optional: true
+
+  swr@2.3.6:
+    resolution: {integrity: sha512-wfHRmHWk/isGNMwlLGlZX5Gzz/uTgo0o2IRuTMcf4CPuPFJZlq0rDaKUx+ozB5nBOReNV1kiOyzMfj+MBMikLw==}
+    peerDependencies:
+      react: ^16.11.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   tailwind-merge@2.6.0:
     resolution: {integrity: sha512-P+Vu1qXfzediirmHOC3xKGAYeZtPcV9g76X+xg2FD4tYgR71ewMA35Y3sCz3zhiN/dwefRpJX0yBcgwi1fXNQA==}
@@ -4673,7 +4685,7 @@ snapshots:
     dependencies:
       '@auth/core': 0.40.0
       graphql: 16.11.0
-      graphql-request: 7.2.0(graphql@16.11.0)
+      graphql-request: 7.3.0(graphql@16.11.0)
       graphql-tag: 2.12.6(graphql@16.11.0)
       jose: 6.0.11
       js-md5: 0.8.3
@@ -4683,7 +4695,7 @@ snapshots:
     dependencies:
       '@auth/core': 0.40.0
       graphql: 16.11.0
-      graphql-request: 7.2.0(graphql@16.11.0)
+      graphql-request: 7.3.0(graphql@16.11.0)
       graphql-tag: 2.12.6(graphql@16.11.0)
       jose: 6.0.11
       js-md5: 0.8.3
@@ -4803,6 +4815,8 @@ snapshots:
 
   decimal.js@10.5.0: {}
 
+  dequal@2.0.3: {}
+
   detect-libc@2.0.4: {}
 
   detect-node-es@1.1.0: {}
@@ -4877,7 +4891,7 @@ snapshots:
 
   graceful-fs@4.2.11: {}
 
-  graphql-request@7.2.0(graphql@16.11.0):
+  graphql-request@7.3.0(graphql@16.11.0):
     dependencies:
       '@graphql-typed-document-node/core': 3.2.0(graphql@16.11.0)
       graphql: 16.11.0
@@ -5354,6 +5368,12 @@ snapshots:
     dependencies:
       client-only: 0.0.1
       react: 19.1.0
+
+  swr@2.3.6(react@19.1.0):
+    dependencies:
+      dequal: 2.0.3
+      react: 19.1.0
+      use-sync-external-store: 1.5.0(react@19.1.0)
 
   tailwind-merge@2.6.0: {}
 

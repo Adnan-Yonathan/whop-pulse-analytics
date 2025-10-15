@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { staggerContainer, staggerItem } from '@/lib/motion';
 import { Counter } from '@/components/motion/Counter';
@@ -12,6 +12,7 @@ import { DashboardLayout } from './DashboardLayout';
 import { FilterModal } from './FilterModal';
 import { ConfigModal } from './ConfigModal';
 import { DemoModeBanner } from '@/components/ui/DemoModeBanner';
+import { useAnalytics } from '@/lib/use-whop-data';
 import {
   TrendingUp,
   Users,
@@ -20,7 +21,8 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Eye,
-  Settings
+  Settings,
+  RefreshCw
 } from 'lucide-react';
 
 interface DashboardClientProps {
@@ -61,6 +63,7 @@ interface DashboardClientProps {
     rating: number;
   }>;
   isDemoMode?: boolean;
+  isAuthenticated?: boolean;
 }
 
 interface FilterOptions {
@@ -92,12 +95,40 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
   companyName,
   userId,
   userName,
-  analyticsData,
+  analyticsData: initialAnalyticsData,
   salesData,
   recentOrders,
-  isDemoMode = false
+  isDemoMode = false,
+  isAuthenticated = false
 }) => {
   const { toast } = useToast();
+  
+  // Use SWR for real-time data fetching (disabled in demo mode)
+  const { analytics: liveAnalytics, isLoading: analyticsLoading, mutate: refreshAnalytics } = useAnalytics(
+    companyId,
+    !isDemoMode && !!companyId
+  );
+  
+  // Use live data if available, otherwise fall back to initial server data
+  const analyticsData = useMemo(() => {
+    if (isDemoMode || !liveAnalytics || analyticsLoading) {
+      return initialAnalyticsData;
+    }
+    
+    // Transform live data to match the expected format
+    return {
+      totalMembers: liveAnalytics.totalMembers || 0,
+      activeMembers: liveAnalytics.activeMembers || 0,
+      revenue: liveAnalytics.totalRevenue || 0,
+      engagement: liveAnalytics.activeMembers > 0 
+        ? Math.round((liveAnalytics.activeMembers / liveAnalytics.totalMembers) * 100)
+        : 0,
+      memberGrowth: initialAnalyticsData.memberGrowth, // Keep from server for now
+      revenueGrowth: initialAnalyticsData.revenueGrowth, // Keep from server for now
+      engagementChange: initialAnalyticsData.engagementChange, // Keep from server for now
+      churnRate: initialAnalyticsData.churnRate, // Keep from server for now
+    };
+  }, [isDemoMode, liveAnalytics, analyticsLoading, initialAnalyticsData]);
   const [viewMode, setViewMode] = useState<'value' | 'percentage'>('value');
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
@@ -215,6 +246,16 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
             </svg>
             <span>Filter analysis</span>
           </button>
+          {!isDemoMode && (
+            <button 
+              className={`flex items-center space-x-2 px-4 py-2 text-foreground-muted hover:text-foreground transition-colors ${analyticsLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={() => refreshAnalytics()}
+              disabled={analyticsLoading}
+            >
+              <RefreshCw className={`w-4 h-4 ${analyticsLoading ? 'animate-spin' : ''}`} />
+              <span>Refresh Data</span>
+            </button>
+          )}
         </div>
 
         {/* Stats Grid */}

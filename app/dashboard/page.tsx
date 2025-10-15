@@ -12,6 +12,7 @@ export default async function DashboardPage() {
   let companyId = 'default';
   let companyName = 'Demo Company';
   let isDemoMode = false;
+  let isAuthenticated = false;
   
   // Fetch real analytics data
   let analyticsData = getDemoAnalytics();
@@ -51,13 +52,16 @@ export default async function DashboardPage() {
       salesData = sales;
       recentOrders = orders;
       isDemoMode = false; // Successfully fetched real data
+      isAuthenticated = true;
     } catch (dataError) {
       console.warn('Failed to fetch real analytics, using demo data:', dataError);
       isDemoMode = true;
+      isAuthenticated = true; // Authenticated but data fetch failed
     }
   } catch (authError) {
     console.warn('Whop SDK auth error, using demo data:', authError);
     isDemoMode = true;
+    isAuthenticated = false;
   }
 
   return (
@@ -70,6 +74,7 @@ export default async function DashboardPage() {
       salesData={salesData}
       recentOrders={recentOrders}
       isDemoMode={isDemoMode}
+      isAuthenticated={isAuthenticated}
     />
   );
 }
