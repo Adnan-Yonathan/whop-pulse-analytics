@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { DemoModeBanner } from "@/components/ui/DemoModeBanner";
 
 interface EngagementHeatmapsProps {
   companyId: string;
+  isDemoMode?: boolean;
 }
 
 interface HeatmapData {
@@ -99,7 +101,7 @@ const mockDropoffData: DropoffData[] = [
   { step: "Active Member", users: 120, dropoff: 60, percentage: 12 }
 ];
 
-export function EngagementHeatmaps({ companyId }: EngagementHeatmapsProps) {
+export function EngagementHeatmaps({ companyId, isDemoMode = false }: EngagementHeatmapsProps) {
   const [selectedView, setSelectedView] = useState<"activity" | "apps" | "funnel">("activity");
   const [heatmapData] = useState<HeatmapData[]>(generateHeatmapData());
 
@@ -154,6 +156,7 @@ export function EngagementHeatmaps({ companyId }: EngagementHeatmapsProps) {
 
   return (
     <div className="space-y-6">
+      {isDemoMode && <DemoModeBanner />}
       {/* Overview Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white p-6 rounded-lg shadow-sm">

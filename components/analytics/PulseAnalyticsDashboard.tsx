@@ -10,6 +10,7 @@ import { CustomDashboards } from "./CustomDashboards";
 import { RevenueAttribution } from "./RevenueAttribution";
 import { ComparativeBenchmarks } from "./ComparativeBenchmarks";
 import { AnalyticsHeader } from "./AnalyticsHeader";
+import { DemoModeBanner } from "@/components/ui/DemoModeBanner";
 
 export type AnalyticsView = 
   | "overview"
@@ -26,6 +27,7 @@ interface PulseAnalyticsDashboardProps {
   companyName: string;
   userId: string;
   userName: string;
+  isDemoMode?: boolean;
 }
 
 export function PulseAnalyticsDashboard({
@@ -33,27 +35,28 @@ export function PulseAnalyticsDashboard({
   companyName,
   userId,
   userName,
+  isDemoMode = false,
 }: PulseAnalyticsDashboardProps) {
   const [activeView, setActiveView] = useState<AnalyticsView>("overview");
 
   const renderActiveView = () => {
     switch (activeView) {
       case "content-performance":
-        return <ContentPerformanceScoring companyId={companyId} />;
+        return <ContentPerformanceScoring companyId={companyId} isDemoMode={isDemoMode} />;
       case "churn-analysis":
-        return <PredictiveChurnAnalysis companyId={companyId} />;
+        return <PredictiveChurnAnalysis companyId={companyId} isDemoMode={isDemoMode} />;
       case "member-segmentation":
-        return <MemberSegmentation companyId={companyId} />;
+        return <MemberSegmentation companyId={companyId} isDemoMode={isDemoMode} />;
       case "engagement-heatmaps":
-        return <EngagementHeatmaps companyId={companyId} />;
+        return <EngagementHeatmaps companyId={companyId} isDemoMode={isDemoMode} />;
       case "custom-dashboards":
-        return <CustomDashboards companyId={companyId} />;
+        return <CustomDashboards companyId={companyId} isDemoMode={isDemoMode} />;
       case "revenue-attribution":
-        return <RevenueAttribution companyId={companyId} />;
+        return <RevenueAttribution companyId={companyId} isDemoMode={isDemoMode} />;
       case "benchmarks":
-        return <ComparativeBenchmarks companyId={companyId} />;
+        return <ComparativeBenchmarks companyId={companyId} isDemoMode={isDemoMode} />;
       default:
-        return <OverviewDashboard companyId={companyId} />;
+        return <OverviewDashboard companyId={companyId} isDemoMode={isDemoMode} />;
     }
   };
 
@@ -72,6 +75,7 @@ export function PulseAnalyticsDashboard({
         />
         
         <main className="flex-1 p-6 bg-background-secondary">
+          {isDemoMode && <DemoModeBanner />}
           {renderActiveView()}
         </main>
       </div>
@@ -80,9 +84,10 @@ export function PulseAnalyticsDashboard({
 }
 
 // Overview Dashboard Component
-function OverviewDashboard({ companyId }: { companyId: string }) {
+function OverviewDashboard({ companyId, isDemoMode = false }: { companyId: string; isDemoMode?: boolean }) {
   return (
     <div className="space-y-6">
+      {isDemoMode && <DemoModeBanner />}
       <div className="bg-card border border-border rounded-lg p-6">
         <h2 className="text-2xl font-bold text-foreground mb-4">
           Welcome to Pulse Analytics

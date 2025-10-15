@@ -1,12 +1,16 @@
 "use client";
 
+import { DemoModeBanner } from "@/components/ui/DemoModeBanner";
+
 interface RevenueAttributionProps {
   companyId: string;
+  isDemoMode?: boolean;
 }
 
-export function RevenueAttribution({ companyId }: RevenueAttributionProps) {
+export function RevenueAttribution({ companyId, isDemoMode = false }: RevenueAttributionProps) {
   return (
     <div className="space-y-6">
+      {isDemoMode && <DemoModeBanner />}
       <div className="bg-white p-6 rounded-lg shadow-sm">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Revenue Attribution</h2>
         <p className="text-gray-600 mb-6">

@@ -20,6 +20,7 @@ import {
   Calendar
 } from 'lucide-react';
 import { MessageDrawer } from '@/components/ui/MessageDrawer';
+import { DemoModeBanner } from '@/components/ui/DemoModeBanner';
 
 interface ChurnAnalysisClientProps {
   companyId?: string;
@@ -51,6 +52,7 @@ interface ChurnAnalysisClientProps {
     count: number;
     impact: string;
   }>;
+  isDemoMode?: boolean;
 }
 
 export function ChurnAnalysisClient({
@@ -60,7 +62,8 @@ export function ChurnAnalysisClient({
   userName,
   churnData,
   highRiskMembers,
-  riskFactors
+  riskFactors,
+  isDemoMode = false
 }: ChurnAnalysisClientProps) {
   const [selectedMember, setSelectedMember] = useState<any>(null);
   const [showMemberModal, setShowMemberModal] = useState(false);
@@ -115,6 +118,7 @@ export function ChurnAnalysisClient({
       userId={userId}
       userName={userName}
     >
+      {isDemoMode && <DemoModeBanner />}
       <div className="space-y-6">
         {/* Header */}
         <Reveal className="bg-gradient-card rounded-2xl p-6 border border-border shadow-card">

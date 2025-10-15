@@ -19,6 +19,7 @@ import {
   Calendar as CalendarIcon,
   X
 } from 'lucide-react';
+import { DemoModeBanner } from '@/components/ui/DemoModeBanner';
 
 interface MemberSegmentationClientProps {
   companyId?: string;
@@ -37,6 +38,7 @@ interface MemberSegmentationClientProps {
     color: string;
     characteristics: string[];
   }>;
+  isDemoMode?: boolean;
 }
 
 interface Member {
@@ -56,7 +58,8 @@ export function MemberSegmentationClient({
   companyName,
   userId,
   userName,
-  segments
+  segments,
+  isDemoMode = false
 }: MemberSegmentationClientProps) {
   const [selectedSegment, setSelectedSegment] = useState<string | null>(null);
   const [showMembersModal, setShowMembersModal] = useState(false);
@@ -178,6 +181,7 @@ export function MemberSegmentationClient({
       userId={userId}
       userName={userName}
     >
+      {isDemoMode && <DemoModeBanner />}
       <div className="space-y-6">
         {/* Header */}
         <Reveal className="bg-gradient-card rounded-2xl p-6 border border-border shadow-card">

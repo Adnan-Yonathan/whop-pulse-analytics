@@ -2,6 +2,7 @@ import { whopSdk } from "@/lib/whop-sdk";
 import { headers } from "next/headers";
 import { ChurnAnalysisClient } from "@/components/dashboard/ChurnAnalysisClient";
 import { getChurnAnalytics } from "@/lib/analytics-data";
+import { getDemoChurnData, getDemoHighRiskMembers, getDemoRiskFactors } from "@/lib/demo-data";
 
 export const dynamic = 'force-dynamic';
 
@@ -9,7 +10,8 @@ export default async function ChurnAnalysisPage() {
   let user = { name: 'Demo User' };
   let userId = 'demo-user';
   let companyId = 'default';
-  let companyName = 'Your Company';
+  let companyName = 'Demo Company';
+  let isDemoMode = false;
   
   try {
     const headersList = await headers();
@@ -23,19 +25,10 @@ export default async function ChurnAnalysisPage() {
     console.warn('Whop SDK error, using demo data:', error);
   }
 
-  // Fetch real churn analysis data
-  let churnData = {
-    totalMembers: 0,
-    highRiskMembers: 0,
-    mediumRiskMembers: 0,
-    lowRiskMembers: 0,
-    churnRate: 0,
-    predictedChurn: 0,
-    lastUpdated: new Date().toISOString()
-  };
-
-  let highRiskMembers: any[] = [];
-  let riskFactors: any[] = [];
+  // Start with demo data
+  let churnData = getDemoChurnData();
+  let highRiskMembers = getDemoHighRiskMembers();
+  let riskFactors = getDemoRiskFactors();
 
   try {
     const data = await getChurnAnalytics(companyId);
@@ -81,19 +74,23 @@ export default async function ChurnAnalysisPage() {
       { factor: 'No activity for 30+ days', count: inactive30Plus, impact: 'High' },
       { factor: 'No activity for 14+ days', count: inactive14Plus, impact: 'Medium' },
     ].filter(f => f.count > 0); // Only show non-zero factors
+    
+    isDemoMode = false; // Successfully fetched real data
   } catch (error) {
-    console.error('Failed to fetch churn analytics:', error);
+    console.error('Failed to fetch churn analytics, using demo data:', error);
+    isDemoMode = true;
   }
 
   return (
     <ChurnAnalysisClient
-      companyId="default"
-      companyName="Your Company"
+      companyId={companyId}
+      companyName={companyName}
       userId={userId}
       userName={user.name || 'User'}
       churnData={churnData}
       highRiskMembers={highRiskMembers}
       riskFactors={riskFactors}
+      isDemoMode={isDemoMode}
     />
   );
 }

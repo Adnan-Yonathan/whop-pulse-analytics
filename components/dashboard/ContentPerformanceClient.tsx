@@ -17,6 +17,7 @@ import {
   Star,
   Target
 } from 'lucide-react';
+import { DemoModeBanner } from '@/components/ui/DemoModeBanner';
 
 interface ContentPerformanceClientProps {
   companyId?: string;
@@ -40,6 +41,7 @@ interface ContentPerformanceClientProps {
     revenue: number;
     trend: string;
   }>;
+  isDemoMode?: boolean;
 }
 
 export function ContentPerformanceClient({
@@ -48,7 +50,8 @@ export function ContentPerformanceClient({
   userId,
   userName,
   contentData,
-  topContent
+  topContent,
+  isDemoMode = false
 }: ContentPerformanceClientProps) {
   const { toast } = useToast();
   
@@ -76,6 +79,7 @@ export function ContentPerformanceClient({
       userId={userId}
       userName={userName}
     >
+      {isDemoMode && <DemoModeBanner />}
       <div className="space-y-6">
         {/* Header */}
         <Reveal className="bg-gradient-card rounded-2xl p-6 border border-border shadow-card">

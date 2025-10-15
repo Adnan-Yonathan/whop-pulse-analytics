@@ -19,12 +19,14 @@ import {
   Trash2,
   Calendar
 } from 'lucide-react';
+import { DemoModeBanner } from '@/components/ui/DemoModeBanner';
 
 interface CustomDashboardsClientProps {
   companyId?: string;
   companyName?: string;
   userId?: string;
   userName?: string;
+  isDemoMode?: boolean;
 }
 
 interface Dashboard {
@@ -42,7 +44,8 @@ export function CustomDashboardsClient({
   companyId,
   companyName,
   userId,
-  userName
+  userName,
+  isDemoMode = false
 }: CustomDashboardsClientProps) {
   const [view, setView] = useState<'list' | 'builder'>('list');
   const [dashboards, setDashboards] = useState<Dashboard[]>([]);
@@ -172,6 +175,7 @@ export function CustomDashboardsClient({
       userId={userId}
       userName={userName}
     >
+      {isDemoMode && <DemoModeBanner />}
       <div className="space-y-6">
         {/* Header */}
         <Reveal className="bg-gradient-card rounded-2xl p-6 border border-border shadow-card">

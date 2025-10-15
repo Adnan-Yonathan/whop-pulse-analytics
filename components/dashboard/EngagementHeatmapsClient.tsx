@@ -13,6 +13,7 @@ import {
   Smartphone,
   Monitor
 } from 'lucide-react';
+import { DemoModeBanner } from '@/components/ui/DemoModeBanner';
 
 interface EngagementHeatmapsClientProps {
   companyId?: string;
@@ -40,6 +41,7 @@ interface EngagementHeatmapsClientProps {
     users: number;
     percentage: number;
   }>;
+  isDemoMode?: boolean;
 }
 
 export const EngagementHeatmapsClient: React.FC<EngagementHeatmapsClientProps> = ({
@@ -50,7 +52,8 @@ export const EngagementHeatmapsClient: React.FC<EngagementHeatmapsClientProps> =
   timeData,
   dayData,
   deviceData,
-  locationData
+  locationData,
+  isDemoMode = false
 }) => {
   return (
     <DashboardLayout
@@ -59,6 +62,7 @@ export const EngagementHeatmapsClient: React.FC<EngagementHeatmapsClientProps> =
       userId={userId}
       userName={userName}
     >
+      {isDemoMode && <DemoModeBanner />}
       <div className="space-y-6">
         {/* Header */}
         <Reveal className="bg-gradient-card rounded-2xl p-6 border border-border shadow-card">

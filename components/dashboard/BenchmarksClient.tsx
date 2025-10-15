@@ -19,6 +19,7 @@ import {
   Eye,
   Calendar
 } from 'lucide-react';
+import { DemoModeBanner } from '@/components/ui/DemoModeBanner';
 
 interface BenchmarksClientProps {
   companyId?: string;
@@ -39,6 +40,7 @@ interface BenchmarksClientProps {
     churnRate: { avg: number; p25: number; p75: number; p90: number };
     ltv: { avg: number; p25: number; p75: number; p90: number };
   };
+  isDemoMode?: boolean;
 }
 
 interface BenchmarkSubmission {
@@ -59,7 +61,8 @@ export function BenchmarksClient({
   userId,
   userName,
   yourMetrics,
-  industryBenchmarks
+  industryBenchmarks,
+  isDemoMode = false
 }: BenchmarksClientProps) {
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
   const [submissions, setSubmissions] = useState<BenchmarkSubmission[]>([]);
@@ -221,6 +224,7 @@ export function BenchmarksClient({
       userId={userId}
       userName={userName}
     >
+      {isDemoMode && <DemoModeBanner />}
       <div className="space-y-6">
         {/* Header */}
         <Reveal className="bg-gradient-card rounded-2xl p-6 border border-border shadow-card">

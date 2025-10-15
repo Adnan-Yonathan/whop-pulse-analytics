@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { DemoModeBanner } from "@/components/ui/DemoModeBanner";
 
 interface ContentPerformanceScoringProps {
   companyId: string;
+  isDemoMode?: boolean;
 }
 
 interface ContentItem {
@@ -75,7 +77,7 @@ const mockContentData: ContentItem[] = [
   }
 ];
 
-export function ContentPerformanceScoring({ companyId }: ContentPerformanceScoringProps) {
+export function ContentPerformanceScoring({ companyId, isDemoMode = false }: ContentPerformanceScoringProps) {
   const [selectedFilter, setSelectedFilter] = useState<"all" | "lesson" | "post" | "livestream" | "file">("all");
   const [sortBy, setSortBy] = useState<"engagement" | "completion" | "views">("engagement");
 
@@ -122,6 +124,7 @@ export function ContentPerformanceScoring({ companyId }: ContentPerformanceScori
 
   return (
     <div className="space-y-6">
+      {isDemoMode && <DemoModeBanner />}
       {/* Header Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white p-6 rounded-lg shadow-sm">

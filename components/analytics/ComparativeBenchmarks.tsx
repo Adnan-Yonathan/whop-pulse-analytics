@@ -1,12 +1,16 @@
 "use client";
 
+import { DemoModeBanner } from "@/components/ui/DemoModeBanner";
+
 interface ComparativeBenchmarksProps {
   companyId: string;
+  isDemoMode?: boolean;
 }
 
-export function ComparativeBenchmarks({ companyId }: ComparativeBenchmarksProps) {
+export function ComparativeBenchmarks({ companyId, isDemoMode = false }: ComparativeBenchmarksProps) {
   return (
     <div className="space-y-6">
+      {isDemoMode && <DemoModeBanner />}
       <div className="bg-white p-6 rounded-lg shadow-sm">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Comparative Benchmarks</h2>
         <p className="text-gray-600 mb-6">

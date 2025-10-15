@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { DemoModeBanner } from "@/components/ui/DemoModeBanner";
 
 interface CustomDashboardsProps {
   companyId: string;
+  isDemoMode?: boolean;
 }
 
 interface KPICard {
@@ -96,7 +98,7 @@ const mockDashboards: Dashboard[] = [
   }
 ];
 
-export function CustomDashboards({ companyId }: CustomDashboardsProps) {
+export function CustomDashboards({ companyId, isDemoMode = false }: CustomDashboardsProps) {
   const [selectedDashboard, setSelectedDashboard] = useState<string>("1");
   const [isEditing, setIsEditing] = useState(false);
   const [availableKPIs] = useState<KPICard[]>(mockKPIs);
@@ -144,6 +146,7 @@ export function CustomDashboards({ companyId }: CustomDashboardsProps) {
 
   return (
     <div className="space-y-6">
+      {isDemoMode && <DemoModeBanner />}
       {/* Dashboard Selector */}
       <div className="bg-white p-6 rounded-lg shadow-sm">
         <div className="flex items-center justify-between mb-4">

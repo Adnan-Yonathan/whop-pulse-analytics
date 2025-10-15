@@ -12,6 +12,7 @@ import {
   BarChart3,
   Download
 } from 'lucide-react';
+import { DemoModeBanner } from '@/components/ui/DemoModeBanner';
 
 interface RevenueAttributionClientProps {
   companyId?: string;
@@ -34,6 +35,7 @@ interface RevenueAttributionClientProps {
     trend: 'up' | 'down' | 'stable';
     percentage: number;
   }>;
+  isDemoMode?: boolean;
 }
 
 export function RevenueAttributionClient({
@@ -42,7 +44,8 @@ export function RevenueAttributionClient({
   userId,
   userName,
   revenueData,
-  attributionSources
+  attributionSources,
+  isDemoMode = false
 }: RevenueAttributionClientProps) {
   const handleExportRevenueData = () => {
     const exportData = attributionSources.map(source => ({
@@ -77,6 +80,7 @@ export function RevenueAttributionClient({
       userId={userId}
       userName={userName}
     >
+      {isDemoMode && <DemoModeBanner />}
       <div className="space-y-6">
         {/* Header */}
         <Reveal className="bg-gradient-card rounded-2xl p-6 border border-border shadow-card">

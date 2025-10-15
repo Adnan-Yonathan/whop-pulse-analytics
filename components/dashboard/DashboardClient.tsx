@@ -11,6 +11,7 @@ import { useToast } from '@/components/ui/ToastProvider';
 import { DashboardLayout } from './DashboardLayout';
 import { FilterModal } from './FilterModal';
 import { ConfigModal } from './ConfigModal';
+import { DemoModeBanner } from '@/components/ui/DemoModeBanner';
 import {
   TrendingUp,
   Users,
@@ -59,6 +60,7 @@ interface DashboardClientProps {
     statusColor: string;
     rating: number;
   }>;
+  isDemoMode?: boolean;
 }
 
 interface FilterOptions {
@@ -92,7 +94,8 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
   userName,
   analyticsData,
   salesData,
-  recentOrders
+  recentOrders,
+  isDemoMode = false
 }) => {
   const { toast } = useToast();
   const [viewMode, setViewMode] = useState<'value' | 'percentage'>('value');
@@ -174,6 +177,9 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
       userName={userName}
     >
       <div className="space-y-8">
+        {/* Demo Mode Banner */}
+        {isDemoMode && <DemoModeBanner />}
+        
         {/* Navigation Tabs */}
         <div className="flex items-center space-x-8 border-b border-border pb-4">
           <button 

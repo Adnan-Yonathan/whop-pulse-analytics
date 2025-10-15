@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { DemoModeBanner } from "@/components/ui/DemoModeBanner";
 
 interface PredictiveChurnAnalysisProps {
   companyId: string;
+  isDemoMode?: boolean;
 }
 
 interface ChurnRiskMember {
@@ -85,7 +87,7 @@ const mockChurnData: ChurnRiskMember[] = [
   }
 ];
 
-export function PredictiveChurnAnalysis({ companyId }: PredictiveChurnAnalysisProps) {
+export function PredictiveChurnAnalysis({ companyId, isDemoMode = false }: PredictiveChurnAnalysisProps) {
   const [selectedRiskLevel, setSelectedRiskLevel] = useState<"all" | "critical" | "high" | "medium" | "low">("all");
   const [sortBy, setSortBy] = useState<"risk" | "engagement" | "lastActive">("risk");
 
@@ -140,6 +142,7 @@ export function PredictiveChurnAnalysis({ companyId }: PredictiveChurnAnalysisPr
 
   return (
     <div className="space-y-6">
+      {isDemoMode && <DemoModeBanner />}
       {/* Risk Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-red-500">

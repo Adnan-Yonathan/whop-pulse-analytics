@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { DemoModeBanner } from "@/components/ui/DemoModeBanner";
 
 interface MemberSegmentationProps {
   companyId: string;
+  isDemoMode?: boolean;
 }
 
 interface MemberSegment {
@@ -107,7 +109,7 @@ const mockCohortData: CohortData[] = [
   { cohort: "Jun 2024", size: 267, month1: 0, month2: 0, month3: 0, month6: 0, month12: 0 }
 ];
 
-export function MemberSegmentation({ companyId }: MemberSegmentationProps) {
+export function MemberSegmentation({ companyId, isDemoMode = false }: MemberSegmentationProps) {
   const [selectedSegment, setSelectedSegment] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"segments" | "cohorts">("segments");
 
@@ -134,6 +136,7 @@ export function MemberSegmentation({ companyId }: MemberSegmentationProps) {
 
   return (
     <div className="space-y-6">
+      {isDemoMode && <DemoModeBanner />}
       {/* Overview Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white p-6 rounded-lg shadow-sm">
