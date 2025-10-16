@@ -35,45 +35,56 @@ export default async function ChurnAnalysisPage() {
     
     churnData = {
       totalMembers: data.totalMembers,
-      highRiskMembers: data.highRiskMembers,
-      mediumRiskMembers: data.mediumRiskMembers,
-      lowRiskMembers: data.lowRiskMembers,
-      churnRate: data.churnRate,
-      predictedChurn: data.predictedChurn,
-      lastUpdated: new Date().toISOString()
+      highRiskMembers: data.criticalRisk + data.highRisk,
+      mediumRiskMembers: data.mediumRisk,
+      lowRiskMembers: data.lowRisk,
+      churnRate: data.totalMembers > 0 ? Math.round((data.criticalRisk + data.highRisk) / data.totalMembers * 100) : 0,
+      predictedChurn: Math.round(data.averageScore),
+      lastUpdated: data.lastUpdated
     };
 
     // Map high-risk members to expected format
-    highRiskMembers = data.highRiskMembersList.slice(0, 10).map((member: any) => ({
-      id: member.id || member.user?.id || 'unknown',
-      name: member.user?.name || member.user?.username || 'Unknown Member',
-      email: member.user?.email || 'N/A',
-      riskScore: member.riskScore,
-      lastActive: member.lastActive === 'Never' 
-        ? 'Never' 
-        : `${member.daysSinceActive} days ago`,
-      reason: member.daysSinceActive > 60 
-        ? 'No activity for 60+ days'
-        : member.daysSinceActive > 45
-        ? 'No activity for 45+ days'
-        : member.daysSinceActive > 30
-        ? 'No activity for 30+ days'
-        : 'Declining engagement',
+    const highRiskMembersList = data.members
+      .filter(m => m.riskLevel === 'critical' || m.riskLevel === 'high')
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 10);
+
+    highRiskMembers = highRiskMembersList.map((member) => ({
+      id: member.userId,
+      name: member.userName,
+      email: member.userEmail,
+      riskScore: member.score / 100, // Convert to 0-1 scale
+      lastActive: member.factors.activityFactors[0] || 'Recently active',
+      reason: member.factors.activityFactors[0] || 
+              member.factors.engagementFactors[0] || 
+              member.factors.financialFactors[0] || 
+              'Multiple risk factors',
       phone: 'N/A', // Not available in SDK
-      joinDate: member.createdAt || 'Unknown',
-      profileUrl: member.user?.id ? `https://whop.com/members/${member.user.id}` : '#'
+      joinDate: 'Unknown', // Would need to fetch from member data
+      profileUrl: `https://whop.com/members/${member.userId}`
     }));
 
     // Calculate risk factors from member data
-    const inactive60Plus = data.membersWithRisk.filter((m: any) => m.daysSinceActive > 60).length;
-    const inactive30Plus = data.membersWithRisk.filter((m: any) => m.daysSinceActive > 30 && m.daysSinceActive <= 60).length;
-    const inactive14Plus = data.membersWithRisk.filter((m: any) => m.daysSinceActive > 14 && m.daysSinceActive <= 30).length;
-    
-    riskFactors = [
-      { factor: 'No activity for 60+ days', count: inactive60Plus, impact: 'High' },
-      { factor: 'No activity for 30+ days', count: inactive30Plus, impact: 'High' },
-      { factor: 'No activity for 14+ days', count: inactive14Plus, impact: 'Medium' },
-    ].filter(f => f.count > 0); // Only show non-zero factors
+    const allFactors = data.members.flatMap(m => [
+      ...m.factors.activityFactors,
+      ...m.factors.engagementFactors,
+      ...m.factors.financialFactors,
+      ...m.factors.behavioralFactors
+    ]);
+
+    const factorCounts = allFactors.reduce((acc, factor) => {
+      acc[factor] = (acc[factor] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    riskFactors = Object.entries(factorCounts)
+      .sort(([,a], [,b]) => (b || 0) - (a || 0))
+      .slice(0, 5)
+      .map(([factor, count]: [string, number]) => ({
+        factor,
+        count: count || 0,
+        impact: (count || 0) > 5 ? 'High' : (count || 0) > 2 ? 'Medium' : 'Low'
+      }));
     
     isDemoMode = false; // Successfully fetched real data
   } catch (error) {

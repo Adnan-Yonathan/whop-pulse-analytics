@@ -1,4 +1,7 @@
 import { whopSdk } from './whop-sdk';
+import { calculateChurnScore, getRiskCategory } from './churn-scoring';
+import { getWebhookHistoryForUsers } from './webhook-store';
+import { ChurnAnalysisData, ChurnScoreResult, MemberActivityData, MemberReceiptData, MemberCourseData } from '@/types/churn';
 
 // Helper to check if a date is within the last N days
 function isWithinDays(dateString: string | null | undefined, days: number): boolean {
@@ -184,76 +187,6 @@ export async function getEngagementAnalytics(companyId: string) {
   }
 }
 
-/**
- * Calculate churn risk for members based on inactivity
- */
-export async function getChurnAnalytics(companyId: string) {
-  try {
-    const memberData = await getMemberAnalytics(companyId);
-    const members = memberData.members;
-
-    // Calculate risk scores based on days since last activity
-    const membersWithRisk = members.map((member: any) => {
-      const lastActive = member?.user?.lastActiveAt || member?.createdAt;
-      const daysSinceActive = lastActive 
-        ? Math.floor((Date.now() - new Date(lastActive).getTime()) / (1000 * 60 * 60 * 24))
-        : 999;
-
-      let riskScore = 0;
-      let riskLevel: 'low' | 'medium' | 'high' | 'critical' = 'low';
-
-      if (daysSinceActive > 30) {
-        riskScore = Math.min(0.95, 0.5 + (daysSinceActive - 30) * 0.015);
-        if (daysSinceActive > 60) riskLevel = 'critical';
-        else if (daysSinceActive > 45) riskLevel = 'high';
-        else riskLevel = 'medium';
-      } else {
-        riskScore = daysSinceActive * 0.01;
-      }
-
-      return {
-        ...member,
-        riskScore,
-        riskLevel,
-        daysSinceActive,
-        lastActive: lastActive || 'Never',
-      };
-    });
-
-    const highRiskMembers = membersWithRisk.filter((m: any) => m.riskLevel === 'high' || m.riskLevel === 'critical');
-    const mediumRiskMembers = membersWithRisk.filter((m: any) => m.riskLevel === 'medium');
-    const lowRiskMembers = membersWithRisk.filter((m: any) => m.riskLevel === 'low');
-
-    // Calculate churn rate (members inactive > 60 days / total members)
-    const churnedCount = membersWithRisk.filter((m: any) => m.daysSinceActive > 60).length;
-    const churnRate = memberData.totalMembers > 0 
-      ? (churnedCount / memberData.totalMembers) * 100 
-      : 0;
-
-    return {
-      totalMembers: memberData.totalMembers,
-      highRiskMembers: highRiskMembers.length,
-      mediumRiskMembers: mediumRiskMembers.length,
-      lowRiskMembers: lowRiskMembers.length,
-      churnRate,
-      predictedChurn: highRiskMembers.length,
-      membersWithRisk,
-      highRiskMembersList: highRiskMembers,
-    };
-  } catch (error) {
-    console.error('Failed to fetch churn analytics:', error);
-    return {
-      totalMembers: 0,
-      highRiskMembers: 0,
-      mediumRiskMembers: 0,
-      lowRiskMembers: 0,
-      churnRate: 0,
-      predictedChurn: 0,
-      membersWithRisk: [],
-      highRiskMembersList: [],
-    };
-  }
-}
 
 /**
  * Fetch content/course analytics
@@ -408,6 +341,122 @@ export async function getSegmentationAnalytics(companyId: string) {
     console.error('Failed to fetch segmentation analytics:', error);
     return {
       segments: [],
+    };
+  }
+}
+
+/**
+ * Fetch churn analysis data with real-time scoring
+ */
+export async function getChurnAnalytics(companyId: string): Promise<ChurnAnalysisData> {
+  try {
+    const sdk = whopSdk as any;
+    
+    // Fetch all required data in parallel
+    const [membersResult, receiptsResult, coursesResult] = await Promise.all([
+      sdk.companies.listMembers({ companyId, first: 1000 }),
+      sdk.receipts.listReceiptsForCompany({ companyId, first: 1000 }),
+      sdk.courses.listCoursesForCompany({ companyId, first: 100 })
+    ]);
+
+    const members = membersResult?.members?.edges?.map((edge: any) => edge.node) || [];
+    const receipts = receiptsResult?.receipts?.edges?.map((edge: any) => edge.node) || [];
+    const courses = coursesResult?.courses?.edges?.map((edge: any) => edge.node) || [];
+
+    // Get webhook history for all members
+    const userIds = members.map((m: any) => m.user.id);
+    const webhookHistory = getWebhookHistoryForUsers(userIds);
+
+    // Calculate churn scores for each member
+    const scoredMembers: ChurnScoreResult[] = [];
+    let criticalRisk = 0;
+    let highRisk = 0;
+    let mediumRisk = 0;
+    let lowRisk = 0;
+    let totalScore = 0;
+
+    for (const member of members) {
+      // Prepare member data
+      const memberData: MemberActivityData = {
+        userId: member.user.id,
+        lastActiveAt: member.user.lastActiveAt,
+        createdAt: member.createdAt,
+      };
+
+      // Get receipts for this member
+      const memberReceipts: MemberReceiptData[] = receipts
+        .filter((r: any) => r.user?.id === member.user.id)
+        .map((r: any) => ({
+          userId: r.user.id,
+          amount: r.finalAmountCents / 100, // Convert cents to dollars
+          createdAt: r.createdAt,
+          status: r.status
+        }));
+
+      // Get courses for this member (placeholder - course access data not available via API)
+      const memberCourses: MemberCourseData[] = [];
+
+      // Get webhook history
+      const memberWebhookHistory = webhookHistory.get(member.user.id) || [];
+
+      // Calculate churn score
+      const churnResult = calculateChurnScore(
+        memberData,
+        memberReceipts,
+        memberCourses,
+        memberWebhookHistory
+      );
+
+      // Add user details
+      churnResult.userName = member.user.name || 'Unknown';
+      churnResult.userEmail = member.user.email || '';
+
+      scoredMembers.push(churnResult);
+
+      // Count by risk level
+      switch (churnResult.riskLevel) {
+        case 'critical':
+          criticalRisk++;
+          break;
+        case 'high':
+          highRisk++;
+          break;
+        case 'medium':
+          mediumRisk++;
+          break;
+        case 'low':
+          lowRisk++;
+          break;
+      }
+
+      totalScore += churnResult.score;
+    }
+
+    const totalMembers = members.length;
+    const averageScore = totalMembers > 0 ? totalScore / totalMembers : 0;
+
+    return {
+      totalMembers,
+      criticalRisk,
+      highRisk,
+      mediumRisk,
+      lowRisk,
+      averageScore,
+      lastUpdated: new Date().toISOString(),
+      members: scoredMembers
+    };
+
+  } catch (error) {
+    console.error('Failed to fetch churn analytics:', error);
+    return {
+      totalMembers: 0,
+      criticalRisk: 0,
+      highRisk: 0,
+      mediumRisk: 0,
+      lowRisk: 0,
+      averageScore: 0,
+      lastUpdated: new Date().toISOString(),
+      members: []
     };
   }
 }

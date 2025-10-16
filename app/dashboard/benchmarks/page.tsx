@@ -79,7 +79,7 @@ export default async function BenchmarksPage() {
       revenue: data.revenue.revenue,
       members: data.member.totalMembers,
       engagement: data.engagement.engagement,
-      churnRate: data.churn.churnRate,
+      churnRate: data.churn.churnRate || 0,
       ltv
     };
   } catch (error) {

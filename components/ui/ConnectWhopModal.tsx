@@ -114,3 +114,4 @@ export function ConnectWhopModal({ isOpen, onClose }: ConnectWhopModalProps) {
   );
 }
 
+

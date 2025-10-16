@@ -46,7 +46,7 @@ export default async function DashboardPage() {
         memberGrowth: allData.member.memberGrowth,
         revenueGrowth: allData.revenue.revenueGrowth,
         engagementChange: allData.engagement.engagementChange,
-        churnRate: allData.churn.churnRate
+        churnRate: allData.churn.churnRate || 0
       };
 
       salesData = sales;

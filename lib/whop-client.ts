@@ -117,3 +117,4 @@ export function openWhopApp(): void {
   window.open(appUrl, '_blank', 'noopener,noreferrer');
 }
 
+
