@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { DashboardClient } from "@/components/dashboard/DashboardClient";
 import { getAllAnalytics, getSalesData, getRecentOrders } from "@/lib/analytics-data";
 import { getDemoAnalytics, getDemoSalesData, getDemoOrders } from "@/lib/demo-data";
+import { DiscordAuthService } from "@/lib/supabase-discord";
 
 export const dynamic = 'force-dynamic';
 
@@ -13,6 +14,7 @@ export default async function DashboardPage() {
   let companyName = 'Demo Company';
   let isDemoMode = false;
   let isAuthenticated = false;
+  let isDiscordConnected = false;
   
   // Fetch real analytics data
   let analyticsData = getDemoAnalytics();
@@ -64,6 +66,14 @@ export default async function DashboardPage() {
     isAuthenticated = false;
   }
 
+  // Check Discord connection
+  try {
+    const discordAuth = await DiscordAuthService.getAuth(userId);
+    isDiscordConnected = discordAuth !== null;
+  } catch (error) {
+    console.warn('Failed to check Discord connection:', error);
+  }
+
   return (
     <DashboardClient
       companyId={companyId}
@@ -75,6 +85,7 @@ export default async function DashboardPage() {
       recentOrders={recentOrders}
       isDemoMode={isDemoMode}
       isAuthenticated={isAuthenticated}
+      isDiscordConnected={isDiscordConnected}
     />
   );
 }

@@ -445,3 +445,295 @@ export function getDemoIndustryBenchmarks() {
   };
 }
 
+// Discord Demo Data Generators
+
+export function getDemoDiscordOverviewAnalytics() {
+  return {
+    totalMembers: 2847,
+    activeMembers: 1923,
+    onlineMembers: 156,
+    totalChannels: 24,
+    textChannels: 18,
+    voiceChannels: 6,
+    totalMessages: 45678,
+    messagesToday: 1234,
+    messagesThisWeek: 8765,
+    messagesThisMonth: 34567,
+    voiceMinutes: 12345,
+    voiceMinutesToday: 456,
+    newJoins: 89,
+    leaves: 23,
+    growthRate: 12.5,
+    engagementRate: 67.6,
+    averageMessagesPerMember: 16.1,
+    averageVoiceTimePerMember: 4.3,
+    topChannels: [
+      { channelId: '1', channelName: 'general', messageCount: 12345, memberCount: 2847 },
+      { channelId: '2', channelName: 'announcements', messageCount: 8901, memberCount: 2847 },
+      { channelId: '3', channelName: 'off-topic', messageCount: 6789, memberCount: 1923 },
+      { channelId: '4', channelName: 'help', messageCount: 4567, memberCount: 1234 },
+      { channelId: '5', channelName: 'feedback', messageCount: 2345, memberCount: 567 }
+    ],
+    memberGrowth: Array.from({ length: 30 }, (_, i) => ({
+      date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      joins: Math.floor(Math.random() * 10) + 1,
+      leaves: Math.floor(Math.random() * 5),
+      net: Math.floor(Math.random() * 8) + 1
+    })),
+    messageTrends: Array.from({ length: 30 }, (_, i) => ({
+      date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      count: Math.floor(Math.random() * 2000) + 500
+    })),
+    voiceTrends: Array.from({ length: 30 }, (_, i) => ({
+      date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      minutes: Math.floor(Math.random() * 1000) + 200
+    }))
+  };
+}
+
+export function getDemoDiscordMemberAnalytics() {
+  const members = [];
+  const usernames = ['alex', 'sam', 'jordan', 'taylor', 'casey', 'riley', 'morgan', 'quinn', 'sage', 'river'];
+  const discriminators = ['1234', '5678', '9012', '3456', '7890', '2468', '1357', '9753', '8642', '7531'];
+  
+  for (let i = 0; i < 50; i++) {
+    const username = usernames[Math.floor(Math.random() * usernames.length)];
+    const discriminator = discriminators[Math.floor(Math.random() * discriminators.length)];
+    const messageCount = Math.floor(Math.random() * 200);
+    const engagementScore = Math.min(100, messageCount * 0.5 + Math.random() * 30);
+    const riskLevels = ['low', 'medium', 'high', 'critical'] as const;
+    const riskLevel = riskLevels[Math.floor(Math.random() * riskLevels.length)];
+    const activityTrends = ['increasing', 'stable', 'decreasing'] as const;
+    const activityTrend = activityTrends[Math.floor(Math.random() * activityTrends.length)];
+    
+    members.push({
+      userId: `user_${i}`,
+      username: `${username}_${i}`,
+      discriminator,
+      avatar: null,
+      joinedAt: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000),
+      roles: Math.random() > 0.8 ? ['admin', 'moderator'] : ['member'],
+      messageCount,
+      messageCount30d: messageCount,
+      reactionCount: Math.floor(Math.random() * 50),
+      reactionCount30d: Math.floor(Math.random() * 50),
+      voiceMinutes: Math.floor(Math.random() * 300),
+      voiceMinutes30d: Math.floor(Math.random() * 300),
+      lastMessageAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
+      lastVoiceAt: new Date(Date.now() - Math.random() * 3 * 24 * 60 * 60 * 1000),
+      churnScore: Math.floor(Math.random() * 100),
+      riskLevel,
+      engagementScore,
+      activityTrend,
+      isOnline: Math.random() > 0.7,
+      status: ['online', 'offline', 'idle', 'dnd'][Math.floor(Math.random() * 4)] as 'online' | 'offline' | 'idle' | 'dnd'
+    });
+  }
+  
+  return members;
+}
+
+export function getDemoDiscordChannelAnalytics() {
+  const channels = [
+    { name: 'general', type: 'text', messages: 12345, members: 2847, engagement: 85.2 },
+    { name: 'announcements', type: 'text', messages: 8901, members: 2847, engagement: 92.1 },
+    { name: 'off-topic', type: 'text', messages: 6789, members: 1923, engagement: 78.5 },
+    { name: 'help', type: 'text', messages: 4567, members: 1234, engagement: 67.3 },
+    { name: 'feedback', type: 'text', messages: 2345, members: 567, engagement: 45.8 },
+    { name: 'voice-lobby', type: 'voice', messages: 0, members: 2847, engagement: 0 },
+    { name: 'gaming', type: 'voice', messages: 0, members: 1234, engagement: 0 },
+    { name: 'study', type: 'voice', messages: 0, members: 567, engagement: 0 }
+  ];
+  
+  return channels.map((channel, index) => ({
+    channelId: `channel_${index}`,
+    channelName: channel.name,
+    channelType: channel.type as 'text' | 'voice' | 'category' | 'thread',
+    messageCount: channel.messages,
+    messageCount30d: channel.messages,
+    memberCount: channel.members,
+    activeMembers: Math.floor(channel.members * 0.6),
+    averageMessagesPerDay: channel.messages / 30,
+    peakActivityHour: Math.floor(Math.random() * 24),
+    engagementRate: channel.engagement,
+    threadCount: Math.floor(Math.random() * 10),
+    reactionCount: Math.floor(channel.messages * 0.1),
+    topPosters: Array.from({ length: 3 }, (_, i) => ({
+      userId: `user_${i}`,
+      username: `user${i}`,
+      messageCount: Math.floor(channel.messages * 0.1)
+    })),
+    activityByHour: Array.from({ length: 24 }, (_, hour) => ({
+      hour,
+      messageCount: Math.floor(Math.random() * 100)
+    })),
+    activityByDay: Array.from({ length: 7 }, (_, day) => ({
+      day: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][day],
+      messageCount: Math.floor(Math.random() * 500)
+    }))
+  }));
+}
+
+export function getDemoDiscordChurnAnalysis() {
+  const members = [];
+  const usernames = ['alex', 'sam', 'jordan', 'taylor', 'casey'];
+  const discriminators = ['1234', '5678', '9012', '3456', '7890'];
+  
+  for (let i = 0; i < 30; i++) {
+    const username = usernames[Math.floor(Math.random() * usernames.length)];
+    const discriminator = discriminators[Math.floor(Math.random() * discriminators.length)];
+    const score = Math.floor(Math.random() * 100);
+    const riskLevels = ['low', 'medium', 'high', 'critical'];
+    const riskLevel = score > 75 ? 'critical' as const : score > 50 ? 'high' as const : score > 25 ? 'medium' as const : 'low' as const;
+    
+    members.push({
+      userId: `user_${i}`,
+      username: `${username}_${i}`,
+      discriminator,
+      avatar: null,
+      score,
+      riskLevel,
+      breakdown: {
+        activityScore: Math.floor(Math.random() * 30),
+        engagementScore: Math.floor(Math.random() * 25),
+        socialHealth: Math.floor(Math.random() * 25),
+        behavioralPatterns: Math.floor(Math.random() * 20),
+        totalScore: score
+      },
+      factors: {
+        activityFactors: ['No activity in 7+ days', 'Very low message count'],
+        engagementFactors: ['No reactions given', 'No voice participation'],
+        socialFactors: ['No special roles', 'New member'],
+        behavioralFactors: ['Declining activity trend', 'Inconsistent activity']
+      },
+      recommendations: [
+        'Immediate personal outreach',
+        'Direct message with special offer',
+        'Assign mentor or buddy'
+      ],
+      lastCalculated: new Date()
+    });
+  }
+  
+  const criticalRisk = members.filter(m => m.riskLevel === 'critical').length;
+  const highRisk = members.filter(m => m.riskLevel === 'high').length;
+  const mediumRisk = members.filter(m => m.riskLevel === 'medium').length;
+  const lowRisk = members.filter(m => m.riskLevel === 'low').length;
+  
+  return {
+    totalMembers: 2847,
+    criticalRisk,
+    highRisk,
+    mediumRisk,
+    lowRisk,
+    averageScore: Math.floor(members.reduce((sum, m) => sum + m.score, 0) / members.length),
+    lastUpdated: new Date().toISOString(),
+    members,
+    riskFactors: [
+      { factor: 'No activity in 7+ days', count: 15, impact: 'High' as const },
+      { factor: 'Very low message count', count: 12, impact: 'High' as const },
+      { factor: 'No reactions given', count: 8, impact: 'Medium' as const },
+      { factor: 'No voice participation', count: 6, impact: 'Medium' as const },
+      { factor: 'Declining activity trend', count: 4, impact: 'Low' as const }
+    ]
+  };
+}
+
+export function getDemoDiscordEngagementHeatmap() {
+  return {
+    timeData: Array.from({ length: 24 }, (_, hour) => ({
+      hour,
+      activity: Math.floor(Math.random() * 100),
+      members: Math.floor(Math.random() * 50)
+    })),
+    dayData: Array.from({ length: 7 }, (_, day) => ({
+      day: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][day],
+      activity: Math.floor(Math.random() * 200),
+      members: Math.floor(Math.random() * 100)
+    })),
+    deviceData: [
+      { device: 'Desktop', count: 150, percentage: 60 },
+      { device: 'Mobile', count: 80, percentage: 32 },
+      { device: 'Web', count: 20, percentage: 8 }
+    ],
+    locationData: [
+      { region: 'North America', count: 120, percentage: 48 },
+      { region: 'Europe', count: 80, percentage: 32 },
+      { region: 'Asia', count: 30, percentage: 12 },
+      { region: 'Other', count: 20, percentage: 8 }
+    ],
+    insights: {
+      peakHour: '14:00',
+      peakDay: 'Wednesday',
+      avgDailyActive: 45,
+      topRegion: 'North America',
+      mostActiveDevice: 'Desktop'
+    }
+  };
+}
+
+export function getDemoDiscordMemberSegmentation() {
+  return {
+    segments: [
+      {
+        name: 'Power Users',
+        description: 'Highly active members with consistent engagement',
+        count: 45,
+        percentage: 15.8,
+        criteria: ['High message count', 'Regular activity', 'Multiple roles'],
+        members: Array.from({ length: 20 }, (_, i) => ({
+          userId: `power_user_${i}`,
+          username: `power${i}`,
+          discriminator: '1234',
+          avatar: null,
+          score: Math.floor(Math.random() * 20) + 80
+        }))
+      },
+      {
+        name: 'Active Members',
+        description: 'Regular participants in server activities',
+        count: 120,
+        percentage: 42.1,
+        criteria: ['Moderate activity', 'Recent engagement'],
+        members: Array.from({ length: 30 }, (_, i) => ({
+          userId: `active_user_${i}`,
+          username: `active${i}`,
+          discriminator: '5678',
+          avatar: null,
+          score: Math.floor(Math.random() * 30) + 50
+        }))
+      },
+      {
+        name: 'Lurkers',
+        description: 'Members who read but rarely participate',
+        count: 100,
+        percentage: 35.1,
+        criteria: ['Low message count', 'High read activity'],
+        members: Array.from({ length: 50 }, (_, i) => ({
+          userId: `lurker_${i}`,
+          username: `lurker${i}`,
+          discriminator: '9012',
+          avatar: null,
+          score: Math.floor(Math.random() * 20) + 20
+        }))
+      },
+      {
+        name: 'At Risk',
+        description: 'Members showing signs of disengagement',
+        count: 20,
+        percentage: 7.0,
+        criteria: ['Declining activity', 'High churn risk'],
+        members: Array.from({ length: 20 }, (_, i) => ({
+          userId: `at_risk_${i}`,
+          username: `atrisk${i}`,
+          discriminator: '3456',
+          avatar: null,
+          score: Math.floor(Math.random() * 20) + 80
+        }))
+      }
+    ],
+    totalMembers: 285,
+    lastUpdated: new Date().toISOString()
+  };
+}
+

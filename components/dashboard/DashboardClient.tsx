@@ -64,6 +64,7 @@ interface DashboardClientProps {
   }>;
   isDemoMode?: boolean;
   isAuthenticated?: boolean;
+  isDiscordConnected?: boolean;
 }
 
 interface FilterOptions {
@@ -99,7 +100,8 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
   salesData,
   recentOrders,
   isDemoMode = false,
-  isAuthenticated = false
+  isAuthenticated = false,
+  isDiscordConnected = false
 }) => {
   const { toast } = useToast();
   
@@ -455,7 +457,54 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
           </div>
         </Reveal>
 
-        {/* CTA Section removed per request */}
+        {/* Discord Connection CTA */}
+        {!isDiscordConnected && (
+          <Reveal>
+            <div className="bg-gradient-to-r from-[#5865F2] to-[#4752C4] rounded-lg p-6 text-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">Connect Your Discord Server</h3>
+                  <p className="text-white/80 mb-4">
+                    Get comprehensive analytics for your Discord community including member engagement, 
+                    churn prediction, and growth insights.
+                  </p>
+                  <div className="flex items-center gap-4 text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                      <span>Member Analytics</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                      <span>Churn Prediction</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                      <span>Growth Tracking</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <MotionButton
+                    asChild
+                    className="bg-white text-[#5865F2] hover:bg-white/90"
+                  >
+                    <a href="/connect-discord">
+                      Connect Discord
+                    </a>
+                  </MotionButton>
+                  <MotionButton
+                    asChild
+                    className="border border-white/20 bg-transparent text-white hover:bg-white/10 px-4 py-2 rounded-md"
+                  >
+                    <a href="/dashboard/discord">
+                      Learn More
+                    </a>
+                  </MotionButton>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        )}
 
         {/* Modals */}
         <FilterModal
