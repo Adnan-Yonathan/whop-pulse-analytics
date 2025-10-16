@@ -2,9 +2,9 @@ import { DiscordOAuthTokens, DiscordUser, DiscordGuild, StoredDiscordAuth } from
 
 // Discord OAuth Configuration
 export const DISCORD_OAUTH_CONFIG = {
-  clientId: process.env.DISCORD_CLIENT_ID!,
-  clientSecret: process.env.DISCORD_CLIENT_SECRET!,
-  redirectUri: process.env.DISCORD_REDIRECT_URI || `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/discord/callback`,
+  clientId: process.env.DISCORD_CLIENT_ID || '1428283025497526302',
+  clientSecret: process.env.DISCORD_CLIENT_SECRET || '-oELf-8NtxhogSI3QATwOVai6vxvnIPy',
+  redirectUri: process.env.DISCORD_REDIRECT_URI || process.env.NEXT_PUBLIC_APP_URL + '/api/auth/discord/callback' || 'http://localhost:3000/api/auth/discord/callback',
   scopes: ['identify', 'guilds', 'guilds.members.read'],
   apiBaseUrl: 'https://discord.com/api/v10',
 } as const;
@@ -20,15 +20,18 @@ export const DISCORD_OAUTH_URLS = {
  * Generate Discord OAuth authorization URL
  */
 export function generateDiscordAuthUrl(state?: string): string {
+  const clientId = '1428283025497526302';
+  const redirectUri = 'http://localhost:3000/api/auth/discord/callback';
+  
   const params = new URLSearchParams({
-    client_id: DISCORD_OAUTH_CONFIG.clientId,
-    redirect_uri: DISCORD_OAUTH_CONFIG.redirectUri,
+    client_id: clientId,
+    redirect_uri: redirectUri,
     response_type: 'code',
-    scope: DISCORD_OAUTH_CONFIG.scopes.join(' '),
+    scope: 'identify guilds guilds.members.read',
     ...(state && { state }),
   });
 
-  return `${DISCORD_OAUTH_URLS.authorize}?${params.toString()}`;
+  return `https://discord.com/oauth2/authorize?${params.toString()}`;
 }
 
 /**
