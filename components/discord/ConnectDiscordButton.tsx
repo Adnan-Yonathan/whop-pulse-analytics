@@ -34,8 +34,16 @@ export function ConnectDiscordButton({
       
       const authUrl = `/api/auth/discord?${params.toString()}`;
       
-      // Redirect to Discord OAuth
-      window.location.href = authUrl;
+      // Open Discord OAuth in a new tab to avoid iframe blocking
+      window.open(authUrl, '_blank', 'noopener,noreferrer');
+      
+      toast({
+        title: 'Opening Discord',
+        description: 'Please complete the authorization in the new tab.',
+        variant: 'default'
+      });
+      
+      setIsLoading(false);
     } catch (error) {
       console.error('Failed to initiate Discord connection:', error);
       toast({

@@ -1,22 +1,44 @@
-import { Suspense } from 'react';
+'use client';
+
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MessageSquare as Discord, CheckCircle, Bot, ExternalLink, ArrowRight } from 'lucide-react';
+import { MessageSquare as Discord, CheckCircle, Bot, ExternalLink, ArrowRight, X } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
-interface SuccessPageProps {
-  searchParams: Promise<{
-    guilds?: string;
-    botInvites?: string;
-    returnUrl?: string;
-  }>;
-}
+export default function ConnectDiscordSuccessPage() {
+  const searchParams = useSearchParams();
+  const [isPopup, setIsPopup] = useState(false);
+  
+  const guildsCount = parseInt(searchParams.get('guilds') || '0');
+  const botInvitesCount = parseInt(searchParams.get('botInvites') || '0');
+  const returnUrl = searchParams.get('returnUrl') || '/dashboard';
 
-export default async function ConnectDiscordSuccessPage({ searchParams }: SuccessPageProps) {
-  const params = await searchParams;
-  const guildsCount = parseInt(params.guilds || '0');
-  const botInvitesCount = parseInt(params.botInvites || '0');
-  const returnUrl = params.returnUrl || '/dashboard';
+  useEffect(() => {
+    // Check if this page was opened in a popup/new tab
+    if (window.opener) {
+      setIsPopup(true);
+      
+      // Notify parent window of successful connection
+      try {
+        window.opener.postMessage({
+          type: 'DISCORD_AUTH_SUCCESS',
+          guildsCount,
+          botInvitesCount
+        }, window.location.origin);
+      } catch (error) {
+        console.log('Could not notify parent window:', error);
+      }
+      
+      // Auto-close popup after 3 seconds
+      const timer = setTimeout(() => {
+        window.close();
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [guildsCount, botInvitesCount]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center p-4">
@@ -118,21 +140,56 @@ export default async function ConnectDiscordSuccessPage({ searchParams }: Succes
               )}
             </div>
 
+            {/* Popup Notice */}
+            {isPopup && (
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center gap-2 text-blue-800">
+                  <CheckCircle className="h-5 w-5" />
+                  <span className="font-medium">Success! This tab will close automatically in 3 seconds.</span>
+                </div>
+                <p className="text-sm text-blue-700 mt-1">
+                  You can also close this tab manually or continue to your dashboard.
+                </p>
+              </div>
+            )}
+
             {/* Action Buttons */}
             <div className="flex gap-3 pt-4">
-              <Button asChild className="flex-1">
-                <Link href="/dashboard/discord">
-                  <Discord className="h-4 w-4 mr-2" />
-                  View Discord Analytics
-                </Link>
-              </Button>
-              
-              <Button asChild variant="outline" className="flex-1">
-                <Link href={returnUrl}>
-                  <ArrowRight className="h-4 w-4 mr-2" />
-                  Continue to Dashboard
-                </Link>
-              </Button>
+              {isPopup ? (
+                <>
+                  <Button asChild className="flex-1">
+                    <Link href="/dashboard/discord">
+                      <Discord className="h-4 w-4 mr-2" />
+                      View Discord Analytics
+                    </Link>
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => window.close()}
+                    variant="outline" 
+                    className="flex-1"
+                  >
+                    <X className="h-4 w-4 mr-2" />
+                    Close This Tab
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button asChild className="flex-1">
+                    <Link href="/dashboard/discord">
+                      <Discord className="h-4 w-4 mr-2" />
+                      View Discord Analytics
+                    </Link>
+                  </Button>
+                  
+                  <Button asChild variant="outline" className="flex-1">
+                    <Link href={returnUrl}>
+                      <ArrowRight className="h-4 w-4 mr-2" />
+                      Continue to Dashboard
+                    </Link>
+                  </Button>
+                </>
+              )}
             </div>
 
             {/* Help Section */}
