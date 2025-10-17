@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MessageSquare as Discord, Plus, BarChart3, Users, MessageSquare, TrendingUp } from 'lucide-react';
+import { MessageSquare as Discord, Plus, BarChart3, Users, MessageSquare, TrendingUp, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { ConnectDiscordButton } from '@/components/discord/ConnectDiscordButton';
 import { GuildSelector } from '@/components/discord/GuildSelector';
@@ -90,10 +90,18 @@ export default function DiscordDashboardPage() {
             Analyze your Discord servers with comprehensive insights
           </p>
         </div>
-        <ConnectDiscordButton whopUserId="demo-user">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Server
-        </ConnectDiscordButton>
+        <div className="flex gap-2">
+          <Link href="/dashboard">
+            <Button variant="outline" className="gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Dashboard
+            </Button>
+          </Link>
+          <ConnectDiscordButton whopUserId="demo-user">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Server
+          </ConnectDiscordButton>
+        </div>
       </div>
 
       {/* Features Overview */}

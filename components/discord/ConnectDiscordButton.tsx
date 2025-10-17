@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { MessageSquare as Discord, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastProvider';
-import { generateDiscordBotInviteUrl } from '@/lib/discord-oauth';
 
 interface ConnectDiscordButtonProps {
   whopUserId?: string;
@@ -37,14 +36,22 @@ export function ConnectDiscordButton({
     setIsLoading(true);
     
     try {
-      const botInviteUrl = await generateDiscordBotInviteUrl(whopUserId);
+      const response = await fetch('/api/discord/invite-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ whopUserId })
+      });
       
-      // Open bot invite in new tab
-      window.open(botInviteUrl, '_blank', 'noopener,noreferrer');
+      if (!response.ok) {
+        throw new Error('Failed to generate invite URL');
+      }
+      
+      const { url } = await response.json();
+      window.open(url, '_blank', 'noopener,noreferrer');
       
       toast({
         title: 'Opening Discord Bot Invite',
-        description: 'Add the Pulse Analytics bot to your server to enable analytics',
+        description: 'Add the Pulse Analytics bot to your server',
         variant: 'default'
       });
     } catch (error) {
