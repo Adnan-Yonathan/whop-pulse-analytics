@@ -40,7 +40,13 @@ export function Header() {
             </a>
           ))}
         </div>
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end">
+        <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-4">
+          <a
+            href="/connect-discord"
+            className="text-sm font-semibold leading-6 text-midnight hover:text-primary-dragonfire transition-colors"
+          >
+            Connect Discord
+          </a>
           <a
             href="/discover"
             className="text-sm font-semibold leading-6 text-midnight hover:text-primary-dragonfire transition-colors"

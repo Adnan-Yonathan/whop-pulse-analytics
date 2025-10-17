@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if token is expired
-    if (!isTokenExpired(Number(authData.expires_at))) {
+    if (!isTokenExpired(authData.expires_at.toString())) {
       return NextResponse.json({
         success: true,
         message: 'Token is still valid'
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     await DiscordAuthService.updateAuth(userId, {
       access_token: newTokens.access_token,
       refresh_token: newTokens.refresh_token,
-      expires_at: BigInt(calculateTokenExpiration(newTokens.expires_in))
+      expires_at: calculateTokenExpiration(newTokens.expires_in)
     });
 
     return NextResponse.json({

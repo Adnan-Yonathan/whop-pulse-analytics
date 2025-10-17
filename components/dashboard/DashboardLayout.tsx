@@ -16,7 +16,8 @@ import {
   DollarSign,
   Settings,
   Menu,
-  X
+  X,
+  MessageSquare
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
@@ -36,6 +37,7 @@ const navigationItems = [
   { id: 'dashboards', label: 'Custom Dashboards', icon: PieChart, href: '/dashboard/custom' },
   { id: 'revenue', label: 'Revenue Attribution', icon: DollarSign, href: '/dashboard/revenue' },
   { id: 'benchmarks', label: 'Benchmarks', icon: BarChart3, href: '/dashboard/benchmarks' },
+  { id: 'discord', label: 'Discord Analytics', icon: MessageSquare, href: '/dashboard/discord' },
 ];
 
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({

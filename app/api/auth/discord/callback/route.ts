@@ -78,7 +78,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Redirect to guild selection page
-    const redirectUrl = new URL('/connect-discord/success', request.url);
+    const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const redirectUrl = new URL('/connect-discord/success', origin);
     redirectUrl.searchParams.set('guilds', adminGuilds.length.toString());
     redirectUrl.searchParams.set('botInvites', botInviteGuilds.length.toString());
     redirectUrl.searchParams.set('returnUrl', returnUrl);

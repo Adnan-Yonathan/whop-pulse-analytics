@@ -145,9 +145,13 @@ export interface StoredDiscordAuth {
   user_id: string; // Whop user ID or internal ID
   discord_user_id: string;
   discord_username: string;
+  discord_discriminator: string;
+  discord_avatar: string | null;
   access_token: string; // Encrypted
   refresh_token: string; // Encrypted
-  expires_at: bigint;
+  token_type: string;
+  expires_at: string;
+  scope: string;
   created_at: Date;
   updated_at: Date;
 }
