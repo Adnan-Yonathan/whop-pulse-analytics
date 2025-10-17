@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { MessageSquare as Discord, CheckCircle, Bot, ExternalLink, ArrowRight, X } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { generateBotAuthUrl } from '@/lib/discord-oauth';
 
 export default function ConnectDiscordSuccessPage() {
   const searchParams = useSearchParams();
@@ -37,6 +38,20 @@ export default function ConnectDiscordSuccessPage() {
       }, 3000);
       
       return () => clearTimeout(timer);
+    } else {
+      // Auto-redirect to bot authorization after user OAuth
+      const redirectToBotAuth = async () => {
+        // If user has admin guilds, redirect to bot auth
+        if (guildsCount > 0) {
+          // Wait 2 seconds to show success message, then redirect to bot auth
+          setTimeout(() => {
+            const botAuthUrl = generateBotAuthUrl();
+            window.location.href = botAuthUrl;
+          }, 2000);
+        }
+      };
+      
+      redirectToBotAuth();
     }
   }, [guildsCount, botInvitesCount]);
 
@@ -90,14 +105,28 @@ export default function ConnectDiscordSuccessPage() {
               
               {guildsCount > 0 ? (
                 <div className="space-y-3">
+                  {!isPopup && (
+                    <div className="flex items-start gap-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                      <div className="h-6 w-6 rounded-full bg-yellow-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-xs font-bold text-white">!</span>
+                      </div>
+                      <div>
+                        <p className="font-medium text-yellow-800">Redirecting to Bot Authorization</p>
+                        <p className="text-sm text-yellow-700">
+                          You'll be redirected to authorize the bot with full analytics permissions in 2 seconds...
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  
                   <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
                     <div className="h-6 w-6 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 mt-0.5">
                       <span className="text-xs font-bold text-white">1</span>
                     </div>
                     <div>
-                      <p className="font-medium">Select a Server</p>
+                      <p className="font-medium">Authorize Bot Access</p>
                       <p className="text-sm text-muted-foreground">
-                        Choose which Discord server you want to analyze
+                        Grant the bot permissions to read server data for analytics
                       </p>
                     </div>
                   </div>

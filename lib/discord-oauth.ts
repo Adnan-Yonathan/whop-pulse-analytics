@@ -268,3 +268,32 @@ export function generateBotInviteUrl(guildId: string): string {
   
   return `https://discord.com/api/oauth2/authorize?client_id=${botClientId}&permissions=${permissions}&guild_id=${guildId}&scope=${encodeURIComponent(scopes)}`;
 }
+
+/**
+ * Generate comprehensive bot authorization URL with full analytics permissions
+ * This is the second OAuth step after user authorization
+ */
+export function generateBotAuthUrl(guildId?: string): string {
+  const clientId = process.env.DISCORD_CLIENT_ID || '1428283025497526302';
+  const redirectUri = encodeURIComponent(process.env.DISCORD_REDIRECT_URI || 'https://whop-pulse-analytics-9avw.vercel.app/api/auth/callback');
+  
+  const scopes = [
+    'guilds.channels.read',
+    'guilds',
+    'webhook.incoming',
+    'dm_channels.messages.read',
+    'email',
+    'rpc.notifications.read',
+    'messages.read',
+    'dm_channels.read',
+    'guilds.members.read'
+  ].join('+');
+  
+  let url = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&integration_type=0&scope=${scopes}`;
+  
+  if (guildId) {
+    url += `&guild_id=${guildId}`;
+  }
+  
+  return url;
+}

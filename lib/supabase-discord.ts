@@ -258,6 +258,23 @@ export class DiscordAnalyticsService {
   }
 
   /**
+   * Update guild bot connection status
+   */
+  static async updateGuildBotStatus(guildId: string, connected: boolean): Promise<void> {
+    const { error } = await supabase
+      .from('discord_guild_connections')
+      .update({ 
+        bot_connected: connected,
+        last_synced_at: connected ? new Date().toISOString() : null
+      })
+      .eq('guild_id', guildId);
+      
+    if (error) {
+      throw new Error(`Failed to update guild bot status: ${error.message}`);
+    }
+  }
+
+  /**
    * Get latest member activity for all members
    */
   static async getLatestMemberActivity(guildId: string): Promise<DiscordMemberActivity[]> {
