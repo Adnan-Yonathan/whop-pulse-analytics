@@ -24,13 +24,13 @@ async function DiscordGuildsList() {
               No Discord Servers Connected
             </CardTitle>
             <CardDescription>
-              Connect your Discord account to start analyzing your servers
+              Add the Pulse Analytics bot to your Discord server to start analyzing
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ConnectDiscordButton returnUrl="/dashboard/discord" className="w-full">
+            <ConnectDiscordButton whopUserId={userId} className="w-full">
               <Plus className="h-4 w-4 mr-2" />
-              Connect Discord Account
+              Add Discord Bot
             </ConnectDiscordButton>
           </CardContent>
         </Card>
@@ -40,6 +40,9 @@ async function DiscordGuildsList() {
     return <GuildSelector guilds={guilds} />;
   } catch (error) {
     console.error('Failed to load Discord guilds:', error);
+    const headersList = await headers();
+    const userId = headersList.get('x-whop-user-id') || 'demo-user';
+    
     return (
       <Card>
         <CardHeader>
@@ -49,9 +52,9 @@ async function DiscordGuildsList() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ConnectDiscordButton returnUrl="/dashboard/discord">
+          <ConnectDiscordButton whopUserId={userId}>
             <Plus className="h-4 w-4 mr-2" />
-            Reconnect Discord
+            Add Discord Bot
           </ConnectDiscordButton>
         </CardContent>
       </Card>
@@ -70,7 +73,7 @@ export default function DiscordDashboardPage() {
             Analyze your Discord servers with comprehensive insights
           </p>
         </div>
-        <ConnectDiscordButton returnUrl="/dashboard/discord">
+        <ConnectDiscordButton whopUserId="demo-user">
           <Plus className="h-4 w-4 mr-2" />
           Add Server
         </ConnectDiscordButton>

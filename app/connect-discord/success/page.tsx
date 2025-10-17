@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { MessageSquare as Discord, CheckCircle, Bot, ExternalLink, ArrowRight, X } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { generateBotAuthUrl } from '@/lib/discord-oauth';
+import { generateDiscordBotInviteUrl } from '@/lib/discord-oauth';
 
 export default function ConnectDiscordSuccessPage() {
   const searchParams = useSearchParams();
@@ -45,7 +45,7 @@ export default function ConnectDiscordSuccessPage() {
         if (guildsCount > 0) {
           // Wait 2 seconds to show success message, then redirect to bot auth
           setTimeout(() => {
-            const botAuthUrl = generateBotAuthUrl();
+            const botAuthUrl = generateDiscordBotInviteUrl('demo-user');
             window.location.href = botAuthUrl;
           }, 2000);
         }

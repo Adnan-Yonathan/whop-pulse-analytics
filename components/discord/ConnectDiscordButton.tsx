@@ -4,9 +4,10 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { MessageSquare as Discord, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastProvider';
+import { generateDiscordBotInviteUrl } from '@/lib/discord-oauth';
 
 interface ConnectDiscordButtonProps {
-  returnUrl?: string;
+  whopUserId?: string;
   className?: string;
   variant?: 'default' | 'outline' | 'secondary' | 'ghost' | 'link' | 'destructive';
   size?: 'default' | 'sm' | 'lg' | 'icon';
@@ -14,7 +15,7 @@ interface ConnectDiscordButtonProps {
 }
 
 export function ConnectDiscordButton({
-  returnUrl = '/dashboard',
+  whopUserId,
   className,
   variant = 'default',
   size = 'default',
@@ -23,36 +24,30 @@ export function ConnectDiscordButton({
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleConnect = async () => {
-    try {
-      setIsLoading(true);
-      
-      // Build OAuth URL with return URL
-      const params = new URLSearchParams({
-        returnUrl: returnUrl
-      });
-      
-      const authUrl = `/api/auth/discord?${params.toString()}`;
-      
-      // Open Discord OAuth in a new tab to avoid iframe blocking
-      window.open(authUrl, '_blank', 'noopener,noreferrer');
-      
+  const handleConnect = () => {
+    if (!whopUserId) {
       toast({
-        title: 'Opening Discord',
-        description: 'Please complete the authorization in the new tab.',
-        variant: 'default'
-      });
-      
-      setIsLoading(false);
-    } catch (error) {
-      console.error('Failed to initiate Discord connection:', error);
-      toast({
-        title: 'Connection Failed',
-        description: 'Failed to connect to Discord. Please try again.',
+        title: 'Error',
+        description: 'Please log in to connect Discord',
         variant: 'error'
       });
-      setIsLoading(false);
+      return;
     }
+
+    setIsLoading(true);
+    
+    const botInviteUrl = generateDiscordBotInviteUrl(whopUserId);
+    
+    // Open bot invite in new tab
+    window.open(botInviteUrl, '_blank', 'noopener,noreferrer');
+    
+    toast({
+      title: 'Opening Discord Bot Invite',
+      description: 'Add the Pulse Analytics bot to your server to enable analytics',
+      variant: 'default'
+    });
+    
+    setTimeout(() => setIsLoading(false), 1000);
   };
 
   return (

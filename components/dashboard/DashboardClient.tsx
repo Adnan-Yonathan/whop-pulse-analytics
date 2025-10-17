@@ -13,6 +13,7 @@ import { FilterModal } from './FilterModal';
 import { ConfigModal } from './ConfigModal';
 import { DemoModeBanner } from '@/components/ui/DemoModeBanner';
 import { useAnalytics } from '@/lib/use-whop-data';
+import { ConnectDiscordButton } from '@/components/discord/ConnectDiscordButton';
 import {
   TrendingUp,
   Users,
@@ -484,14 +485,9 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <MotionButton
-                    asChild
-                    className="bg-white text-[#5865F2] hover:bg-white/90"
-                  >
-                    <a href="/connect-discord">
-                      Connect Discord
-                    </a>
-                  </MotionButton>
+                  <ConnectDiscordButton whopUserId={userId} className="bg-white text-[#5865F2] hover:bg-white/90">
+                    Connect Discord
+                  </ConnectDiscordButton>
                   <MotionButton
                     asChild
                     className="border border-white/20 bg-transparent text-white hover:bg-white/10 px-4 py-2 rounded-md"

@@ -6,19 +6,19 @@ The Discord integration allows users to connect their Discord servers to Pulse A
 
 ## Architecture
 
-### Authentication Flow
+### Simplified Bot-First Flow
 1. User clicks "Connect Discord" button
-2. Redirects to Discord OAuth consent screen
-3. Discord redirects back with authorization code
-4. Exchange code for access token + refresh token
-5. Store tokens securely in Supabase
-6. Fetch user's Discord servers (guilds)
-7. User selects which server(s) to analyze
+2. Opens Discord bot invite URL with Whop user ID in state parameter
+3. User adds bot to their Discord server
+4. Bot automatically registers with Pulse Analytics via webhook
+5. Bot collects analytics data and writes directly to Supabase
+6. Pulse Analytics reads data from Supabase for dashboard display
 
 ### Data Collection Strategy
-- **OAuth**: User authentication and server list
-- **Discord Bot**: Real-time data collection and analytics
-- **Supabase**: Secure token storage and analytics data persistence
+- **Bot Invite**: Direct bot authorization with user linking via state parameter
+- **Discord Bot**: Real-time data collection and analytics (separate service)
+- **Supabase**: Analytics data persistence and user-server linking
+- **Webhooks**: Bot-to-app communication for guild registration and data ingestion
 
 ## Setup Instructions
 
@@ -26,25 +26,69 @@ The Discord integration allows users to connect their Discord servers to Pulse A
 
 1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
 2. Create a new application
-3. Note down the `Client ID` and `Client Secret`
-4. Add redirect URI: `https://yourdomain.com/api/auth/discord/callback`
-5. Enable required OAuth2 scopes:
-   - `identify` - Basic user info
-   - `guilds` - List user's servers
-   - `guilds.members.read` - Read server member data
+3. Note down the `Client ID` and `Bot Token`
+4. No OAuth2 setup required - using direct bot invites only
 
 ### 2. Discord Bot Setup
 
 1. In your Discord application, go to "Bot" section
 2. Create a bot and note the `Bot Token`
-3. Set required bot permissions:
+3. Set required bot permissions (bitfield: 412317240384):
    - Read Messages/View Channels
    - Read Message History
    - View Server Insights
    - Connect (voice)
    - Use Voice Activity
+   - Send Messages (for webhooks)
 
-### 3. Supabase Setup
+### 3. Bot Implementation (Separate Service)
+
+Your Discord bot should be deployed as a separate service and implement:
+
+#### Guild Join Event Handler
+```javascript
+// When bot joins a guild, extract whop_user_id from OAuth state
+client.on('guildCreate', async (guild) => {
+  const whopUserId = extractWhopUserIdFromState(); // From invite URL state param
+  
+  await fetch('https://your-app.com/api/discord/bot/guild-join', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.DISCORD_BOT_TOKEN}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      guild_id: guild.id,
+      guild_name: guild.name,
+      whop_user_id: whopUserId,
+      member_count: guild.memberCount
+    })
+  });
+});
+```
+
+#### Analytics Data Collection
+```javascript
+// Periodic analytics collection
+setInterval(async () => {
+  const analyticsData = await collectGuildAnalytics();
+  
+  await fetch('https://your-app.com/api/discord/bot/analytics', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.DISCORD_BOT_TOKEN}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      guild_id: guild.id,
+      analytics_type: 'member_activity',
+      data: analyticsData
+    })
+  });
+}, 300000); // Every 5 minutes
+```
+
+### 4. Supabase Setup
 
 1. Create a new Supabase project
 2. Note down the `Project URL` and `Service Role Key`

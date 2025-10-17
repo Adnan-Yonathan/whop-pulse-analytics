@@ -1,265 +1,37 @@
-import { DiscordOAuthTokens, DiscordUser, DiscordGuild, StoredDiscordAuth } from '@/types/discord';
-
-// Discord OAuth Configuration
-export const DISCORD_OAUTH_CONFIG = {
-  clientId: process.env.DISCORD_CLIENT_ID!,
-  clientSecret: process.env.DISCORD_CLIENT_SECRET!,
-  redirectUri: process.env.DISCORD_REDIRECT_URI || `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/discord/callback`,
-  scopes: ['identify', 'guilds', 'guilds.members.read'],
-  apiBaseUrl: 'https://discord.com/api/v10',
-} as const;
-
-// OAuth URLs
-export const DISCORD_OAUTH_URLS = {
-  authorize: 'https://discord.com/oauth2/authorize',
-  token: 'https://discord.com/api/v10/oauth2/token',
-  revoke: 'https://discord.com/api/v10/oauth2/token/revoke',
-} as const;
+// Discord Bot Integration Utilities
 
 /**
- * Generate Discord OAuth authorization URL
- */
-export function generateDiscordAuthUrl(state?: string): string {
-  const clientId = process.env.DISCORD_CLIENT_ID || '1428283025497526302';
-  const redirectUri = process.env.DISCORD_REDIRECT_URI || 'http://localhost:3000/api/auth/discord/callback';
-  
-  const params = new URLSearchParams({
-    client_id: clientId,
-    redirect_uri: redirectUri,
-    response_type: 'code',
-    scope: 'identify guilds guilds.members.read',
-    ...(state && { state }),
-  });
-
-  return `https://discord.com/oauth2/authorize?${params.toString()}`;
-}
-
-/**
- * Exchange authorization code for access token
- */
-export async function exchangeCodeForToken(code: string): Promise<DiscordOAuthTokens> {
-  const response = await fetch(DISCORD_OAUTH_URLS.token, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams({
-      client_id: DISCORD_OAUTH_CONFIG.clientId,
-      client_secret: DISCORD_OAUTH_CONFIG.clientSecret,
-      grant_type: 'authorization_code',
-      code,
-      redirect_uri: DISCORD_OAUTH_CONFIG.redirectUri,
-    }),
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Failed to exchange code for token: ${error}`);
-  }
-
-  return response.json();
-}
-
-/**
- * Refresh Discord access token
- */
-export async function refreshDiscordToken(refreshToken: string): Promise<DiscordOAuthTokens> {
-  const response = await fetch(DISCORD_OAUTH_URLS.token, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams({
-      client_id: DISCORD_OAUTH_CONFIG.clientId,
-      client_secret: DISCORD_OAUTH_CONFIG.clientSecret,
-      grant_type: 'refresh_token',
-      refresh_token: refreshToken,
-    }),
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Failed to refresh token: ${error}`);
-  }
-
-  return response.json();
-}
-
-/**
- * Revoke Discord access token
- */
-export async function revokeDiscordToken(token: string): Promise<void> {
-  const response = await fetch(DISCORD_OAUTH_URLS.revoke, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams({
-      client_id: DISCORD_OAUTH_CONFIG.clientId,
-      client_secret: DISCORD_OAUTH_CONFIG.clientSecret,
-      token,
-    }),
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Failed to revoke token: ${error}`);
-  }
-}
-
-/**
- * Fetch Discord user information
- */
-export async function fetchDiscordUser(accessToken: string): Promise<DiscordUser> {
-  const response = await fetch(`${DISCORD_OAUTH_CONFIG.apiBaseUrl}/users/@me`, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Failed to fetch Discord user: ${error}`);
-  }
-
-  return response.json();
-}
-
-/**
- * Fetch user's Discord guilds (servers)
- */
-export async function fetchDiscordGuilds(accessToken: string): Promise<DiscordGuild[]> {
-  const response = await fetch(`${DISCORD_OAUTH_CONFIG.apiBaseUrl}/users/@me/guilds`, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Failed to fetch Discord guilds: ${error}`);
-  }
-
-  return response.json();
-}
-
-/**
- * Check if user has admin permissions in a guild
- */
-export function hasGuildAdminPermissions(guild: DiscordGuild): boolean {
-  const permissions = BigInt(guild.permissions || '0');
-  return (permissions & BigInt(0x8)) !== BigInt(0); // ADMINISTRATOR permission
-}
-
-/**
- * Check if user can invite bot to guild
- */
-export function canInviteBot(guild: DiscordGuild): boolean {
-  const permissions = BigInt(guild.permissions || '0');
-  // Check for either MANAGE_GUILD (0x20) or ADMINISTRATOR (0x8) permission
-  return (permissions & BigInt(0x20)) !== BigInt(0) || (permissions & BigInt(0x8)) !== BigInt(0);
-}
-
-/**
- * Create stored auth object from OAuth data
- */
-export function createStoredAuth(
-  userId: string,
-  discordUser: DiscordUser,
-  tokens: DiscordOAuthTokens
-): Omit<StoredDiscordAuth, 'id' | 'created_at' | 'updated_at'> {
-  return {
-    user_id: userId,
-    discord_user_id: discordUser.id,
-    discord_username: discordUser.username,
-    discord_discriminator: discordUser.discriminator,
-    discord_avatar: discordUser.avatar || null,
-    access_token: tokens.access_token,
-    refresh_token: tokens.refresh_token,
-    token_type: tokens.token_type,
-    expires_at: new Date(Date.now() + tokens.expires_in * 1000).toISOString(),
-    scope: tokens.scope,
-  };
-}
-
-/**
- * Custom error class for Discord OAuth errors
- */
-export class DiscordOAuthError extends Error {
-  constructor(
-    message: string,
-    public code: string,
-    public status?: number
-  ) {
-    super(message);
-    this.name = 'DiscordOAuthError';
-  }
-}
-
-/**
- * Handle Discord API rate limiting
- */
-export async function handleDiscordRateLimit(response: Response): Promise<void> {
-  if (response.status === 429) {
-    const retryAfter = response.headers.get('Retry-After');
-    if (retryAfter) {
-      const delay = parseInt(retryAfter) * 1000;
-      await new Promise(resolve => setTimeout(resolve, delay));
-    } else {
-      throw new DiscordOAuthError('Rate limited by Discord API', 'RATE_LIMITED', 429);
-    }
-  }
-}
-
-/**
- * Make authenticated Discord API request
- */
-export async function makeDiscordApiRequest<T>(
-  endpoint: string,
-  accessToken: string,
-  options: RequestInit = {}
-): Promise<T> {
-  const url = `${DISCORD_OAUTH_CONFIG.apiBaseUrl}${endpoint}`;
-  
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-  });
-
-  await handleDiscordRateLimit(response);
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new DiscordOAuthError(
-      `Discord API error: ${error}`,
-      'API_ERROR',
-      response.status
-    );
-  }
-
-  return response.json();
-}
-
-/**
- * Check if Discord token is expired
+ * Check if token is expired
  */
 export function isTokenExpired(expiresAt: string): boolean {
   return new Date(expiresAt) <= new Date();
 }
 
 /**
- * Calculate token expiration date
+ * Calculate token expiration time
  */
 export function calculateTokenExpiration(expiresIn: number): string {
   return new Date(Date.now() + expiresIn * 1000).toISOString();
 }
 
 /**
- * Generate Discord bot invite URL for a specific guild
+ * Generate Discord bot invite URL with analytics permissions
+ * @param whopUserId - Whop user ID to link Discord server to Pulse Analytics account
+ */
+export function generateDiscordBotInviteUrl(whopUserId: string): string {
+  const botClientId = process.env.DISCORD_CLIENT_ID || '1428283025497526302';
+  
+  // Bot permissions for analytics (bitfield calculated)
+  const permissions = '412317240384'; // Read Messages, View Channels, Read Message History, etc.
+  
+  // Use state parameter to pass Whop user ID for linking
+  const state = encodeURIComponent(whopUserId);
+  
+  return `https://discord.com/oauth2/authorize?client_id=${botClientId}&permissions=${permissions}&scope=bot&state=${state}`;
+}
+
+/**
+ * Generate Discord bot invite URL for a specific guild (legacy function)
  */
 export function generateBotInviteUrl(guildId: string): string {
   const botClientId = process.env.DISCORD_CLIENT_ID || '1428283025497526302';
@@ -270,30 +42,29 @@ export function generateBotInviteUrl(guildId: string): string {
 }
 
 /**
- * Generate comprehensive bot authorization URL with full analytics permissions
- * This is the second OAuth step after user authorization
+ * Check if user has admin permissions in a guild
  */
-export function generateBotAuthUrl(guildId?: string): string {
-  const clientId = process.env.DISCORD_CLIENT_ID || '1428283025497526302';
-  const redirectUri = encodeURIComponent(process.env.DISCORD_REDIRECT_URI || 'https://whop-pulse-analytics-9avw.vercel.app/api/auth/callback');
+export function hasGuildAdminPermissions(permissions: string): boolean {
+  const perms = BigInt(permissions);
+  const adminPerm = BigInt(0x8); // ADMINISTRATOR permission
+  const manageGuildPerm = BigInt(0x20); // MANAGE_GUILD permission
   
-  const scopes = [
-    'guilds.channels.read',
-    'guilds',
-    'webhook.incoming',
-    'dm_channels.messages.read',
-    'email',
-    'rpc.notifications.read',
-    'messages.read',
-    'dm_channels.read',
-    'guilds.members.read'
-  ].join('+');
-  
-  let url = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&integration_type=0&scope=${scopes}`;
-  
-  if (guildId) {
-    url += `&guild_id=${guildId}`;
+  return (perms & adminPerm) === adminPerm || (perms & manageGuildPerm) === manageGuildPerm;
+}
+
+/**
+ * Make authenticated Discord API request
+ */
+export async function makeDiscordApiRequest<T = any>(endpoint: string, accessToken: string): Promise<T> {
+  const response = await fetch(`https://discord.com/api/v10${endpoint}`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Discord API request failed: ${response.statusText}`);
   }
-  
-  return url;
+
+  return response.json();
 }

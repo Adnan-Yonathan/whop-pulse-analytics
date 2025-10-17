@@ -78,12 +78,12 @@ export default function ConnectDiscordPage() {
             </CardHeader>
             <CardContent>
               <ConnectDiscordButton 
-                returnUrl="/dashboard/discord"
+                whopUserId="demo-user"
                 className="w-full"
                 size="lg"
               >
                 <Discord className="h-5 w-5 mr-2" />
-                Connect Discord Account
+                Add Discord Bot
               </ConnectDiscordButton>
             </CardContent>
           </Card>
