@@ -7,12 +7,21 @@ import { ConnectDiscordButton } from '@/components/discord/ConnectDiscordButton'
 import { GuildSelector } from '@/components/discord/GuildSelector';
 import { DiscordGuildService, DiscordAnalyticsService } from '@/lib/supabase-discord';
 import { headers } from 'next/headers';
+import { whopSdk } from '@/lib/whop-sdk';
 
 async function DiscordGuildsList() {
+  // Get actual user ID from Whop authentication
+  const headersList = await headers();
+  let userId = 'demo-user';
+  
   try {
-    const headersList = await headers();
-    const userId = headersList.get('x-whop-user-id') || 'demo-user';
-    
+    const authResult = await (whopSdk as any).verifyUserToken(headersList);
+    userId = authResult.userId;
+  } catch (error) {
+    console.warn('Failed to verify user token, using demo-user:', error);
+  }
+  
+  try {
     const guilds = await DiscordGuildService.getUserGuilds(userId);
     
     if (guilds.length === 0) {
@@ -37,7 +46,7 @@ async function DiscordGuildsList() {
       );
     }
 
-    // For each guild, fetch analytics from Supabase
+    // Fetch analytics for each guild
     const guildsWithAnalytics = await Promise.all(
       guilds.map(async (guild) => {
         try {
@@ -57,9 +66,6 @@ async function DiscordGuildsList() {
     return <GuildSelector guilds={guildsWithAnalytics} />;
   } catch (error) {
     console.error('Failed to load Discord guilds:', error);
-    const headersList = await headers();
-    const userId = headersList.get('x-whop-user-id') || 'demo-user';
-    
     return (
       <Card>
         <CardHeader>
@@ -79,7 +85,18 @@ async function DiscordGuildsList() {
   }
 }
 
-export default function DiscordDashboardPage() {
+export default async function DiscordDashboardPage() {
+  // Get real user ID for the header button
+  const headersList = await headers();
+  let userId = 'demo-user';
+  
+  try {
+    const authResult = await (whopSdk as any).verifyUserToken(headersList);
+    userId = authResult.userId;
+  } catch (error) {
+    console.warn('Failed to verify user token for header:', error);
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -92,12 +109,12 @@ export default function DiscordDashboardPage() {
         </div>
         <div className="flex gap-2">
           <Link href="/dashboard">
-            <Button variant="outline" className="gap-2">
+            <Button variant="outline" className="gap-2 text-white hover:text-white">
               <ArrowLeft className="h-4 w-4" />
               Back to Dashboard
             </Button>
           </Link>
-          <ConnectDiscordButton whopUserId="demo-user">
+          <ConnectDiscordButton whopUserId={userId}>
             <Plus className="h-4 w-4 mr-2" />
             Add Server
           </ConnectDiscordButton>
