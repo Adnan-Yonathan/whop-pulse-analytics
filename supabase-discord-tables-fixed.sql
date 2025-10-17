@@ -1,149 +1,88 @@
--- Discord Integration Database Tables for Supabase
--- Run this script in your Supabase SQL editor
+-- 1) Backup existing table (timestamp uses server time)
+DO $$
+DECLARE ts text := to_char(NOW(), 'YYYYMMDD_HH24MISS');
+BEGIN
+  EXECUTE format('CREATE TABLE IF NOT EXISTS discord_guild_analytics_backup_%s AS TABLE discord_guild_analytics;', ts);
+END$$;
 
--- Enable UUID extension if not already enabled
+-- 2) Ensure uuid extension exists
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- 1. Discord Invite States Table
--- Stores temporary state parameters for bot invite URLs
-CREATE TABLE IF NOT EXISTS discord_invite_states (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  state_id TEXT UNIQUE NOT NULL,
-  whop_user_id TEXT NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  expires_at TIMESTAMP WITH TIME ZONE NOT NULL
-);
+-- 3) Add a new UUID primary key column if not exists
+ALTER TABLE discord_guild_analytics
+  ADD COLUMN IF NOT EXISTS new_id UUID DEFAULT uuid_generate_v4();
 
--- Indexes for performance
-CREATE INDEX IF NOT EXISTS idx_discord_invite_states_state_id ON discord_invite_states(state_id);
-CREATE INDEX IF NOT EXISTS idx_discord_invite_states_expires_at ON discord_invite_states(expires_at);
-CREATE INDEX IF NOT EXISTS idx_discord_invite_states_whop_user_id ON discord_invite_states(whop_user_id);
+-- 4) Add desired new columns
+ALTER TABLE discord_guild_analytics
+  ADD COLUMN IF NOT EXISTS analytics_type TEXT,
+  ADD COLUMN IF NOT EXISTS data JSONB,
+  ADD COLUMN IF NOT EXISTS timestamp TIMESTAMPTZ DEFAULT NOW();
 
--- 2. Users Table (links Whop and Discord)
-CREATE TABLE IF NOT EXISTS users (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  whop_user_id TEXT UNIQUE NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+-- 5) Create indexes for new columns
+CREATE INDEX IF NOT EXISTS idx_dga_analytics_type ON discord_guild_analytics(analytics_type);
+CREATE INDEX IF NOT EXISTS idx_dga_timestamp ON discord_guild_analytics(timestamp);
+CREATE INDEX IF NOT EXISTS idx_dga_guild_id ON discord_guild_analytics(guild_id);
 
--- Index for Whop user ID lookups
-CREATE INDEX IF NOT EXISTS idx_users_whop_user_id ON users(whop_user_id);
-
--- 3. Discord Guilds Table
-CREATE TABLE IF NOT EXISTS discord_guilds (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  guild_id TEXT UNIQUE NOT NULL,
-  guild_name TEXT NOT NULL,
-  user_id TEXT NOT NULL, -- References whop_user_id
-  member_count INTEGER,
-  bot_connected BOOLEAN DEFAULT FALSE,
-  connected_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  permissions TEXT[] -- Store bot permissions if needed
-);
-
--- Indexes for performance
-CREATE INDEX IF NOT EXISTS idx_discord_guilds_guild_id ON discord_guilds(guild_id);
-CREATE INDEX IF NOT EXISTS idx_discord_guilds_user_id ON discord_guilds(user_id);
-CREATE INDEX IF NOT EXISTS idx_discord_guilds_bot_connected ON discord_guilds(bot_connected);
-
--- 4. Discord Analytics Data Table
-CREATE TABLE IF NOT EXISTS discord_guild_analytics (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  guild_id TEXT NOT NULL,
-  analytics_type TEXT NOT NULL, -- e.g., 'member_activity', 'channel_engagement', 'guild_analytics'
-  data JSONB NOT NULL,
-  timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Indexes for performance
-CREATE INDEX IF NOT EXISTS idx_discord_guild_analytics_guild_id ON discord_guild_analytics(guild_id);
-CREATE INDEX IF NOT EXISTS idx_discord_guild_analytics_type ON discord_guild_analytics(analytics_type);
-CREATE INDEX IF NOT EXISTS idx_discord_guild_analytics_timestamp ON discord_guild_analytics(timestamp);
-
--- 5. Discord Member Activity Table (optional, for detailed member tracking)
-CREATE TABLE IF NOT EXISTS discord_member_activity (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  guild_id TEXT NOT NULL,
-  member_id TEXT NOT NULL,
-  username TEXT,
-  activity_type TEXT NOT NULL, -- 'message', 'voice_join', 'voice_leave', etc.
-  channel_id TEXT,
-  timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  metadata JSONB -- Additional activity-specific data
-);
-
--- Indexes for performance
-CREATE INDEX IF NOT EXISTS idx_discord_member_activity_guild_id ON discord_member_activity(guild_id);
-CREATE INDEX IF NOT EXISTS idx_discord_member_activity_member_id ON discord_member_activity(member_id);
-CREATE INDEX IF NOT EXISTS idx_discord_member_activity_timestamp ON discord_member_activity(timestamp);
-CREATE INDEX IF NOT EXISTS idx_discord_member_activity_type ON discord_member_activity(activity_type);
-
--- 6. Discord Channel Analytics Table (optional, for channel-specific metrics)
-CREATE TABLE IF NOT EXISTS discord_channel_analytics (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  guild_id TEXT NOT NULL,
-  channel_id TEXT NOT NULL,
-  channel_name TEXT,
-  channel_type TEXT, -- 'text', 'voice', 'category', 'thread'
-  message_count INTEGER DEFAULT 0,
-  member_count INTEGER DEFAULT 0,
-  timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Indexes for performance
-CREATE INDEX IF NOT EXISTS idx_discord_channel_analytics_guild_id ON discord_channel_analytics(guild_id);
-CREATE INDEX IF NOT EXISTS idx_discord_channel_analytics_channel_id ON discord_channel_analytics(channel_id);
-CREATE INDEX IF NOT EXISTS idx_discord_channel_analytics_timestamp ON discord_channel_analytics(timestamp);
-
--- 7. Row Level Security (RLS) Policies
--- Enable RLS on all tables
-ALTER TABLE discord_invite_states ENABLE ROW LEVEL SECURITY;
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE discord_guilds ENABLE ROW LEVEL SECURITY;
+-- 6) Enable RLS and add permissive policy (adjust later to your auth model)
 ALTER TABLE discord_guild_analytics ENABLE ROW LEVEL SECURITY;
-ALTER TABLE discord_member_activity ENABLE ROW LEVEL SECURITY;
-ALTER TABLE discord_channel_analytics ENABLE ROW LEVEL SECURITY;
 
--- Create policies (adjust based on your authentication needs)
--- For now, allowing all operations - you may want to restrict based on user authentication
-
--- Discord invite states - allow all operations (temporary data)
-CREATE POLICY "Allow all operations on discord_invite_states" ON discord_invite_states
-  FOR ALL USING (true);
-
--- Users - allow all operations
-CREATE POLICY "Allow all operations on users" ON users
-  FOR ALL USING (true);
-
--- Discord guilds - allow all operations
-CREATE POLICY "Allow all operations on discord_guilds" ON discord_guilds
-  FOR ALL USING (true);
-
--- Discord guild analytics - allow all operations
-CREATE POLICY "Allow all operations on discord_guild_analytics" ON discord_guild_analytics
-  FOR ALL USING (true);
-
--- Discord member activity - allow all operations
-CREATE POLICY "Allow all operations on discord_member_activity" ON discord_member_activity
-  FOR ALL USING (true);
-
--- Discord channel analytics - allow all operations
-CREATE POLICY "Allow all operations on discord_channel_analytics" ON discord_channel_analytics
-  FOR ALL USING (true);
-
--- 8. Cleanup function for expired invite states
-CREATE OR REPLACE FUNCTION cleanup_expired_discord_states()
-RETURNS void AS $$
+DO $$
 BEGIN
-  DELETE FROM discord_invite_states 
-  WHERE expires_at < NOW();
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policy p JOIN pg_class c ON p.polrelid = c.oid WHERE c.relname = 'discord_guild_analytics' AND p.polname = 'allow_all_dga') THEN
+    EXECUTE 'CREATE POLICY allow_all_dga ON discord_guild_analytics FOR ALL USING (true);';
+  END IF;
+END$$;
+
+-- 7) Create analytics_types lookup table and seed
+CREATE TABLE IF NOT EXISTS analytics_types (
+  name TEXT PRIMARY KEY,
+  description TEXT
+);
+
+INSERT INTO analytics_types (name, description)
+VALUES
+  ('messages', 'Total messages per day'),
+  ('voice', 'Voice minutes per day')
+ON CONFLICT (name) DO NOTHING;
+
+-- 8) Create a view that normalizes existing table into a canonical shape
+CREATE OR REPLACE VIEW discord_guild_analytics_v2 AS
+SELECT
+  COALESCE(new_id::text, id::text) AS id,
+  guild_id,
+  date,
+  analytics_type,
+  data,
+  timestamp,
+  total_messages,
+  active_members,
+  voice_minutes,
+  new_joins,
+  leaves,
+  reaction_count,
+  thread_count,
+  channel_activity
+FROM discord_guild_analytics;
+
+-- 9) Create a helper function to populate 'data' JSONB from existing columns
+CREATE OR REPLACE FUNCTION discord_guild_analytics_populate_data() RETURNS VOID LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+  UPDATE discord_guild_analytics SET data = jsonb_build_object(
+    'total_messages', total_messages,
+    'active_members', active_members,
+    'voice_minutes', voice_minutes,
+    'new_joins', new_joins,
+    'leaves', leaves,
+    'reaction_count', reaction_count,
+    'thread_count', thread_count,
+    'channel_activity', channel_activity
+  ) WHERE data IS NULL;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
--- Verification queries
--- Run these to verify the tables were created correctly:
+-- 10) Run the population function
+SELECT discord_guild_analytics_populate_data();
 
--- SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name LIKE 'discord_%';
--- SELECT * FROM discord_invite_states LIMIT 5;
--- SELECT * FROM discord_guilds LIMIT 5;
--- SELECT * FROM discord_guild_analytics LIMIT 5;
+-- 11) Grant view select to authenticated role (optional)
+GRANT SELECT ON discord_guild_analytics_v2 TO authenticated;
