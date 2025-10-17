@@ -5,7 +5,7 @@ import { MessageSquare as Discord, Plus, BarChart3, Users, MessageSquare, Trendi
 import Link from 'next/link';
 import { ConnectDiscordButton } from '@/components/discord/ConnectDiscordButton';
 import { GuildSelector } from '@/components/discord/GuildSelector';
-import { DiscordGuildService } from '@/lib/supabase-discord';
+import { DiscordGuildService, DiscordAnalyticsService } from '@/lib/supabase-discord';
 import { headers } from 'next/headers';
 
 async function DiscordGuildsList() {
@@ -37,7 +37,24 @@ async function DiscordGuildsList() {
       );
     }
 
-    return <GuildSelector guilds={guilds} />;
+    // For each guild, fetch analytics from Supabase
+    const guildsWithAnalytics = await Promise.all(
+      guilds.map(async (guild) => {
+        try {
+          const analytics = await DiscordAnalyticsService.getGuildAnalytics(
+            guild.guild_id,
+            new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // Last 30 days
+            new Date()
+          );
+          return { ...guild, analytics };
+        } catch (error) {
+          console.warn(`Failed to fetch analytics for guild ${guild.guild_id}:`, error);
+          return { ...guild, analytics: null };
+        }
+      })
+    );
+    
+    return <GuildSelector guilds={guildsWithAnalytics} />;
   } catch (error) {
     console.error('Failed to load Discord guilds:', error);
     const headersList = await headers();

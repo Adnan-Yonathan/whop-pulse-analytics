@@ -1,7 +1,7 @@
 import { whopSdk } from "@/lib/whop-sdk";
 import { headers } from "next/headers";
 import { DashboardClient } from "@/components/dashboard/DashboardClient";
-import { getAllAnalytics, getSalesData, getRecentOrders } from "@/lib/analytics-data";
+import { getAllAnalytics, getSalesData, getRecentOrders, checkDiscordConnection } from "@/lib/analytics-data";
 import { getDemoAnalytics, getDemoSalesData, getDemoOrders } from "@/lib/demo-data";
 import { DiscordAuthService } from "@/lib/supabase-discord";
 
@@ -68,8 +68,7 @@ export default async function DashboardPage() {
 
   // Check Discord connection
   try {
-    const discordAuth = await DiscordAuthService.getAuth(userId);
-    isDiscordConnected = discordAuth !== null;
+    isDiscordConnected = await checkDiscordConnection(userId);
   } catch (error) {
     console.warn('Failed to check Discord connection:', error);
   }

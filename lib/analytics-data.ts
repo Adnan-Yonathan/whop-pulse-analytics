@@ -2,6 +2,7 @@ import { whopSdk } from './whop-sdk';
 import { calculateChurnScore, getRiskCategory } from './churn-scoring';
 import { getWebhookHistoryForUsers } from './webhook-store';
 import { ChurnAnalysisData, ChurnScoreResult, MemberActivityData, MemberReceiptData, MemberCourseData } from '@/types/churn';
+import { DiscordGuildService } from './supabase-discord';
 
 // Helper to check if a date is within the last N days
 function isWithinDays(dateString: string | null | undefined, days: number): boolean {
@@ -643,6 +644,19 @@ export async function getAllAnalytics(companyId: string) {
   } catch (error) {
     console.error('Failed to fetch all analytics:', error);
     throw error;
+  }
+}
+
+/**
+ * Check if Discord is connected for a user
+ */
+export async function checkDiscordConnection(userId: string): Promise<boolean> {
+  try {
+    const guilds = await DiscordGuildService.getUserGuilds(userId);
+    return guilds.length > 0 && guilds.some(g => g.bot_connected);
+  } catch (error) {
+    console.error('Error checking Discord connection:', error);
+    return false;
   }
 }
 

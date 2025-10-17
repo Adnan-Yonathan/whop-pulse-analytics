@@ -209,6 +209,7 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
       companyName={companyName}
       userId={userId}
       userName={userName}
+      isDiscordConnected={isDiscordConnected}
     >
       <div className="space-y-8">
         {/* Demo Mode Banner */}

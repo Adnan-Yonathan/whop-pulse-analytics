@@ -24,7 +24,7 @@ export function ConnectDiscordButton({
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleConnect = () => {
+  const handleConnect = async () => {
     if (!whopUserId) {
       toast({
         title: 'Error',
@@ -36,18 +36,27 @@ export function ConnectDiscordButton({
 
     setIsLoading(true);
     
-    const botInviteUrl = generateDiscordBotInviteUrl(whopUserId);
-    
-    // Open bot invite in new tab
-    window.open(botInviteUrl, '_blank', 'noopener,noreferrer');
-    
-    toast({
-      title: 'Opening Discord Bot Invite',
-      description: 'Add the Pulse Analytics bot to your server to enable analytics',
-      variant: 'default'
-    });
-    
-    setTimeout(() => setIsLoading(false), 1000);
+    try {
+      const botInviteUrl = await generateDiscordBotInviteUrl(whopUserId);
+      
+      // Open bot invite in new tab
+      window.open(botInviteUrl, '_blank', 'noopener,noreferrer');
+      
+      toast({
+        title: 'Opening Discord Bot Invite',
+        description: 'Add the Pulse Analytics bot to your server to enable analytics',
+        variant: 'default'
+      });
+    } catch (error) {
+      console.error('Failed to generate bot invite URL:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to generate Discord bot invite. Please try again.',
+        variant: 'error'
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

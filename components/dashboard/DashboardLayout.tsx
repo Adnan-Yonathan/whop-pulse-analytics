@@ -26,6 +26,7 @@ interface DashboardLayoutProps {
   companyName?: string;
   userId?: string;
   userName?: string;
+  isDiscordConnected?: boolean;
 }
 
 const navigationItems = [
@@ -45,7 +46,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   companyId,
   companyName,
   userId,
-  userName
+  userName,
+  isDiscordConnected
 }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
@@ -110,9 +112,17 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               <p className="text-base font-semibold text-foreground truncate">
                 {userName || 'User'}
               </p>
-              <p className="text-sm text-foreground-muted truncate">
-                {companyName || 'Company'}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm text-foreground-muted truncate">
+                  {companyName || 'Company'}
+                </p>
+                {isDiscordConnected && (
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#5865F2]/10 border border-[#5865F2]/20 rounded-full">
+                    <div className="w-2 h-2 bg-[#5865F2] rounded-full animate-pulse" />
+                    <span className="text-xs font-medium text-[#5865F2]">Discord Connected</span>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
               <span className="text-primary text-sm">→</span>

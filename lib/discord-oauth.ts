@@ -18,16 +18,17 @@ export function calculateTokenExpiration(expiresIn: number): string {
  * Generate Discord bot invite URL with analytics permissions
  * @param whopUserId - Whop user ID to link Discord server to Pulse Analytics account
  */
-export function generateDiscordBotInviteUrl(whopUserId: string): string {
+export async function generateDiscordBotInviteUrl(whopUserId: string): Promise<string> {
   const botClientId = process.env.DISCORD_CLIENT_ID || '1428283025497526302';
   
   // Bot permissions for analytics (bitfield calculated)
   const permissions = '412317240384'; // Read Messages, View Channels, Read Message History, etc.
   
-  // Use state parameter to pass Whop user ID for linking
-  const state = encodeURIComponent(whopUserId);
+  // Store state in Supabase for tracking
+  const { storeBotInviteState } = await import('./discord-state');
+  const stateId = await storeBotInviteState(whopUserId);
   
-  return `https://discord.com/oauth2/authorize?client_id=${botClientId}&permissions=${permissions}&scope=bot&state=${state}`;
+  return `https://discord.com/oauth2/authorize?client_id=${botClientId}&permissions=${permissions}&scope=bot&state=${stateId}`;
 }
 
 /**

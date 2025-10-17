@@ -44,10 +44,14 @@ export default function ConnectDiscordSuccessPage() {
         // If user has admin guilds, redirect to bot auth
         if (guildsCount > 0) {
           // Wait 2 seconds to show success message, then redirect to bot auth
-          setTimeout(() => {
-            const botAuthUrl = generateDiscordBotInviteUrl('demo-user');
+        setTimeout(async () => {
+          try {
+            const botAuthUrl = await generateDiscordBotInviteUrl('demo-user');
             window.location.href = botAuthUrl;
-          }, 2000);
+          } catch (error) {
+            console.error('Failed to generate bot invite URL:', error);
+          }
+        }, 2000);
         }
       };
       
